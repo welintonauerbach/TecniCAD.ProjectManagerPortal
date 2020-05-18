@@ -168,6 +168,31 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
             modeItem = Mode.Edit;
         }
 
+        protected async Task DuplicateItem(ProjectItem item)
+        {
+            var duplicateItem = new ProjectItem
+            {
+                DocNumber = item.DocNumber,
+                FileLinkId = item.FileLinkId,
+                ItemNumber = item.ItemNumber,
+                Name = item.Name,
+                OfNumber = item.OfNumber,
+                ProjectId = item.ProjectId
+            };
+
+            var isSucess = await apiProject.SaveProjectItem(duplicateItem);
+
+            if (isSucess)
+            {
+                await ReloadProject();
+            }
+            else
+            {
+                await Alert("Atenção: O item não foi salvo!");
+            }
+
+        }
+
         protected async Task DeleteItem(int item)
         {
             var isSucess = await apiProject.DeleteProjectItem(item);

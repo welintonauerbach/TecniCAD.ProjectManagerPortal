@@ -167,6 +167,7 @@
                             <td class="align-middle" width="100">
                                 <div class="btn-group" role="group">
                                     <button class="btn btn-info" @onclick="@(() => EditItem(item))">Editar</button>
+                                    <button class="btn btn-outline-primary" @onclick="@(() => DuplicateItem(item))">Duplicar</button>
                                     <a class="btn btn-success" href="@item.FileLink.FilePath"
                                        role="button" aria-pressed="true" target="_blank">Acessar</a>
                                     <button class="btn btn-danger" @onclick="@(() => DeleteItem(item.ProjectItemId))">Excluir</button>
