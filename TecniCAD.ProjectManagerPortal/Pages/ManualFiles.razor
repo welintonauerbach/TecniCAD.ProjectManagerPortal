@@ -1,0 +1,34 @@
+﻿@page "/manuals"
+
+<PageTitle Title="Manuais de Instruções"></PageTitle>
+
+<div>
+    <p></p>
+    <AddManual OnUpdate="@UpdateList" SetFileLinkChange="fileLink"></AddManual>
+    <p></p>
+    <ManualList Update="@update" @bind-FileLink="fileLink" SelectButton="false" OptionsButton="true"></ManualList>
+</div>
+
+@code{
+
+    private FileLink fileLink;
+
+    //private FileLink FL
+    //{
+    //    get => fileLink; 
+    //    set
+    //    {
+    //        if (value != null)
+    //        {
+    //            fileLink = value;
+    //        }            
+    //    }
+    //}
+
+    private bool update;
+
+    protected void UpdateList(bool up)
+    {
+        update = up;
+    }
+}

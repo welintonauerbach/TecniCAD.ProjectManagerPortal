@@ -1,0 +1,200 @@
+﻿@using Controller
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration configuration;
+
+<div class="tc-buttons-container">
+    <button @onclick="Add" class="btn btn-outline-danger">Adicionar Manual</button>
+</div>
+<p></p>
+@if (mode == Mode.Add || mode == Mode.Edit)
+{
+    @if (categories != null)
+    {<p></p>
+        <div class="card">
+            <div class="card-header">
+                <h4>Adicionar Documento</h4>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="form-group">
+
+                        <div class="form-row">
+                            <div class="col-4">
+                                <label>Categoria</label>
+                                <select class="form-control" @bind="fileLink.CategoryId">
+                                    @foreach (var cat in categories)
+                                    {
+                                        <option value="@cat.CategoryId">@cat.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col">
+                                <TcInputBox Label="Link para o Documento" PlaceHolder="Link" @bind-Text="fileLink.FilePath"></TcInputBox>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="col-4">
+                                <TcInputBox Label="Nome Equipamento" PlaceHolder="Equipamento" @bind-Text="fileLink.Name"></TcInputBox>
+                            </div>
+                            <div class="col-4">
+                                <TcInputBox Label="Código do Equipamento" PlaceHolder="Código" @bind-Text="fileLink.Code"></TcInputBox>
+                            </div>
+                            <div class="col-4">
+                                <label>Tipo</label>
+                                <select class="form-control" @bind="fileLink.FileType">
+                                    <option value="0">Padrão</option>
+                                    <option value="1">Cliente</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-warning" @onclick="AddCategory">Adicionar Categoria</button>
+                <button class="btn btn-success" @onclick="Save">Salvar Documento</button>
+                <button class="btn btn-danger" @onclick="Cancel">Cancelar Documento</button>
+            </div>
+        </div>
+        @if (modeCat == Mode.Add)
+        {<p></p>
+            <div class="card">
+                <div class="card-header">
+                    <h4>Adicionar Categoria</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="col-4">
+                            <TcInputBox Label="Nome da Categoria" PlaceHolder="Nome" @bind-Text="categoryName"></TcInputBox>
+                        </div>
+
+                        <div class="col">
+                            <TcInputBox Label="Descrição da Categoria" PlaceHolder="Descrição" @bind-Text="categoryDesc"></TcInputBox>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-success" @onclick="SaveCategory">Salvar Categoria</button>
+                    <button class="btn btn-danger" @onclick="CancelCategory">Cancelar Categoria</button>
+                </div>
+            </div>
+        }
+    }
+}
+
+@code {
+
+    List<Category> categories;
+
+    FileLink fileLink;
+    Category category;
+    string categoryName;
+    string categoryDesc;
+
+    ManualController api;
+
+    Mode mode = Mode.None;
+    Mode modeCat = Mode.None;
+
+    [Parameter]
+    public bool Update
+    {
+        get => updated;
+        set
+        {
+            OnUpdate.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<bool> OnUpdate { get; set; }
+
+    [Parameter]
+    public FileLink SetFileLinkChange
+    {
+        get => fileLink;
+        set
+        {
+            if (value != null)
+            {
+                fileLink = value;
+                EditDoc();
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        api = new ManualController(configuration);
+        await LoadCategories();
+
+    }
+
+    protected async Task LoadCategories()
+    {
+        categories = await api.GetCategories();
+
+    }
+
+    private void Add()
+    {
+        fileLink = new FileLink();
+        mode = Mode.Add;
+    }
+
+
+    private void Cancel()
+    {
+        fileLink = null;
+        mode = Mode.None;
+    }
+
+    public bool updated = false;
+
+    private async Task Save()
+    {
+        if (mode == Mode.Add)
+        {
+            updated = await api.PostDocument(fileLink);
+            Update = true;
+            mode = Mode.None;
+        }
+        if (mode == Mode.Edit)
+        {
+            updated = await api.UpdateDocument(fileLink.FileLinkId, fileLink);
+            Update = true;
+            mode = Mode.None;
+        }
+    }
+
+    private async Task EditDoc()
+    {
+        mode = Mode.Edit;
+
+    }
+
+    private void AddCategory()
+    {
+        modeCat = Mode.Add;
+    }
+
+    private async Task SaveCategory()
+    {
+        category = new Category();
+        category.Name = categoryName;
+        category.Description = categoryDesc;
+        var catResult = await api.PostCategory(category);
+
+        if (catResult != null)
+        {
+            categories = catResult;
+        }
+        modeCat = Mode.None;
+    }
+
+    private void CancelCategory()
+    {
+        category = null;
+        modeCat = Mode.None;
+    }
+}

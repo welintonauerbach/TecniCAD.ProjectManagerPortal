@@ -1,0 +1,64 @@
+﻿<label>@Label</label>
+<input class="form-control @Uppercase()" readonly="@IsReadOnly" placeholder="@PlaceHolder" @bind="@Text"/>
+
+@code {
+
+    [Parameter]
+    public string Text
+    {
+        get => _text;
+        set
+        {
+            if (_text == value) return;
+
+            _text = value;
+
+            TextChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> TextChanged { get; set; }
+
+    [Parameter]
+    public string Label { get; set; }
+
+    [Parameter]
+    public string PlaceHolder { get; set; }
+
+    [Parameter]
+    public string TextValue { get; set; }
+
+    [Parameter]
+    public bool Upercase
+    {
+        get => upper;
+        set
+        {
+            if (upper == value) return;
+
+            upper = value;
+        }
+    }
+
+    [Parameter]
+    public bool IsReadOnly
+    {
+        get;
+        set;
+    }
+    
+    bool upper = false;       
+
+    private string Uppercase()
+    {
+        if (upper)
+            return "text-uppercase";
+        else
+            return string.Empty;
+    }
+
+    private string _text;
+    private string _textId;
+
+}

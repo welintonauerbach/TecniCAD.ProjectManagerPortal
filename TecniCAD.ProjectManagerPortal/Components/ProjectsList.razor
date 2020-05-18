@@ -1,0 +1,229 @@
+﻿@using Controller
+@inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
+@inject IJSRuntime js
+@using Microsoft.Extensions.Configuration;
+
+<div id="tcMainContainer" class="container-fluid">
+    <div class="tc-buttons-container">
+        <button class="btn btn-outline-danger" @onclick="AddProject">Adicionar Item</button>
+    </div>
+    @if (modeProject == Mode.Add || modeProject == Mode.Edit)
+    {
+        <p></p>
+        <div id="tcComponent" class="row">
+            <div id="tcCard" class="col tc-card-item-2">
+                <div class="tc-card-header">
+                    <h4>Adicionar | Editar Projeto</h4>
+                </div>
+                <div class="tc-card-body">
+                    <div class="form-row">
+                        <div class="col-3">
+                            <TcInputBox Label="Número do Projeto" PlaceHolder="Número do Orçamento" @bind-Text="project.ProjectNumber"></TcInputBox>
+                        </div>
+                        <div class="col">
+                            <TcInputBox Upercase="true" Label="Nome do Projeto" PlaceHolder="Descrição do projeto" @bind-Text="project.ProjectName"></TcInputBox>
+                        </div>
+                    </div>
+                    @if (customer != null)
+                    {
+                        <div class="form-row">
+                            <div class="col-3">
+                                <TcInputBox Label="ID" PlaceHolder="@customer.CustomerId.ToString()" IsReadOnly="true"></TcInputBox>
+                            </div>
+                            <div class="col-3">
+                                <TcInputBox Label="Código" @bind-Text="@customer.Number" IsReadOnly="true"></TcInputBox>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="tc-card-footer">
+                    <button class="btn btn-info" @onclick="GetCustomer">Selecionar Cliente</button>&emsp;&emsp;
+                    <button class="btn btn-success" @onclick="SaveProject">Salvar Item</button>
+                    <button class="btn btn-danger" @onclick="CancelProject">Cancelar Item</button>
+                </div>
+                @* Coluna com Manuais *@
+                @if (modeSelect == Mode.Add)
+                {
+                    <p></p>
+                    <div class="tc-card-body">
+                        <div class="form-row">
+                            <CustomerList DisableEdit="true" AllCollumn="false" @bind-CustomerData="customer"></CustomerList>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    <p></p>
+    <h4>Lista de Projetos</h4>
+    <p></p>
+    @if (projects == null)
+    {<h4>Carregando Projetos</h4>}
+    else
+    {
+        <table class="table table-hover table-bordered">
+            <thead class="thead-light">
+                <tr>
+                    <th>Cliente</th>
+                    <th>Projeto/Orçamento</th>
+                    <th>Nome do Projeto</th>
+                    <th>Opções</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in projects)
+                {
+                    <tr class="@VerifyProjectItens(item)" onclick="@Show(item.ProjectId.ToString())">
+                        <td>@item.Customer.Number</td>
+                        <td>@item.ProjectNumber</td>
+                        <td>@item.ProjectName</td>
+                        <td width="200">
+                            <a href="@GenerateUriToProject(item.ProjectId)" class="btn btn-success active" role="button" aria-pressed="true">Acessar</a>
+                            <button class="btn btn-info" @onclick="@(() => EditProject(item))">Editar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+@code {
+
+    [Inject]
+    IConfiguration configuration { get; set; }
+
+    //private TcHttp http;
+    private List<Project> projects;
+
+    ProjectController api;
+    Project project;
+    Customer customer;
+
+    protected Mode modeProject = Mode.None;
+    protected Mode modeSelect = Mode.None;
+
+    protected override async Task OnInitializedAsync()
+    {
+        api = new ProjectController(configuration);
+        await LoadProjects();
+    }
+
+    protected async Task LoadProjects()
+    {
+        projects = await api.GetProjects();
+    }
+
+    protected async Task ReLoadProjects()
+    {
+        projects = null;
+        projects = await api.GetProjects();
+    }
+
+    protected async Task Show(string id)
+    {
+
+    }
+
+    private string GenerateUriToProject(int id)
+    {
+        var uri = $"{UriHelper.BaseUri}project/{id}";
+
+        return uri;
+    }
+
+    protected void GetCustomer()
+    {
+        modeSelect = Mode.Add;
+    }
+
+    protected void AddProject()
+    {
+        project = new Project();
+        modeProject = Mode.Add;
+    }
+
+    protected async Task SaveProject()
+    {
+
+        if (modeProject == Mode.Add)
+        {
+            if (customer == null)
+            {
+                await Alert("Selecione um Manual para Salvar o Item!");
+                return;
+            }
+            project.CustomerId = customer.CustomerId;
+            var isSucess = await api.SaveProject(project);
+
+            if (isSucess)
+            {
+                await ReLoadProjects();
+                modeProject = Mode.None;
+                modeSelect = Mode.None;
+
+                customer = null;
+                project = null;
+                await Alert("Item salvo com sucesso!");
+            }
+            else
+            {
+                await Alert("O item não foi salvo!");
+            }
+
+        }
+
+        if (modeProject == Mode.Edit)
+        {
+            var isSucess = await api.UpdateProject(project.ProjectId, project);
+            if (isSucess)
+            {
+                modeProject = Mode.None;
+                await Alert("Item atualizado com sucesso!");
+            }
+            else
+            {
+                await Alert("Item não atualizado!");
+            }
+        }
+    }
+
+    protected void EditProject(Project proj)
+    {
+        project = proj;
+        modeProject = Mode.Edit;
+    }
+
+    protected void CancelProject()
+    {
+        project = null;
+        modeProject = Mode.None;
+    }
+
+    protected string VerifyProjectItens(Project project)
+    {
+        if (project != null)
+        {
+            if (project.Items.Count > 0)
+            {
+                foreach (var item in project.Items)
+                {
+                    if (item.FileLink.Code == "000000")
+                    {
+                        return "tc-doc-incomplete";
+                    }
+                }
+            }
+            if (project.Items.Count == 0)
+            {
+                return "tc-doc-empty";
+            }
+        }
+        return "tc-doc-complete";
+    }
+
+    private async Task Alert(string msg)
+    {
+        await js.InvokeAsync<object>
+            ("ShowAlert", msg);
+    }
+}

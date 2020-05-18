@@ -1,0 +1,192 @@
+﻿@page "/project"
+@page "/project/{id}"
+@inherits TecniCAD.ProjectManagerPortal.Components.ProjectView.ProjectViewBase
+
+<div id="tcMainContainer" class="container-fluid">
+    @* Coluna Central *@
+    <div class="tc-page-col col">
+        @if (project != null)
+        {
+            <div class="row">
+                <div class="col-3">
+                    <p class="tc-title">Projeto: <strong>@project.ProjectNumber</strong></p>
+                </div>
+            </div>
+            <div id="tcMain" class="row">
+                <div class="col tc-card-main">
+                    <div class="tc-card-header">
+                        <h4>Cliente: <strong>@project.Customer.Number</strong></h4>
+                    </div>
+                    <div class="tc-card-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="flex-grow-1 p-2"><strong>Projeto : </strong>@project.ProjectNumber</div>
+                            </div>
+                            <div class="row">
+                                <div class="flex-grow-1 p-2 justify-content-center"><strong>Descrição : </strong>@project.ProjectName</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <h4>Carregando Dados...</h4>
+            <h4>Aguarde ...</h4>
+        }
+        <p></p>
+        <div class="tc-buttons-container">
+            <button class="btn btn-outline-danger" @onclick="AddItem">Adicionar Item</button>
+            <button class="btn btn-warning" @onclick="ComposeEmail">Enviar Email</button>
+        </div>
+        @*Card Enviar Email*@
+        @if (modeEmail == Mode.Add)
+        {
+            <p></p>
+            <div class="col tc-card-item-2">
+                <div class="tc-card-header">
+                    <h4>Enviar email dos documentos</h4>
+                </div>
+                <div class="tc-card-body">
+                    <div class="form-row">
+                        <div class="col-3">
+                            <TcInputBox Label="Nome" PlaceHolder="Nome do Contato" @bind-Text="email.ToName"></TcInputBox>
+                        </div>
+                        <div class="col">
+                            <TcInputBox Label="Email" PlaceHolder="Endereço de Email" @bind-Text="email.ToAdress"></TcInputBox>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col">
+                            <TcInputBox Label="Mensagem Adicional (Opcional)" PlaceHolder="Digite uma mensagem adicional para enviar no email" @bind-Text="email.MessageCustom"></TcInputBox>
+                        </div>
+                    </div>
+                </div>
+                <div class="tc-card-footer">
+                    <button class="btn btn-success" @onclick="SendEmail">Enviar</button>
+                    <button class="btn btn-danger" @onclick="CancelComposeEmail">Cancelar</button>
+                </div>
+
+            </div>
+        }
+        <p />
+        @if (modeItem == Mode.Add || modeItem == Mode.Edit)
+        {
+            @*<div id="tcComponent" class="row">*@
+            <div id="tcCard" class="col tc-card-item-2">
+                <div class="tc-card-header">
+                    <h4>Adicionar | Editar Item</h4>
+                </div>
+                <div class="tc-card-body">
+                    <div class="form-row">
+                        <div class="col-1">
+                            <TcInputBox Label="Item" PlaceHolder="Número do Item" @bind-Text="projectItem.ItemNumber"></TcInputBox>
+                        </div>
+                        <div class="col-2">
+                            <TcInputBox Upercase="true" Label="OF" PlaceHolder="Número da OF" @bind-Text="projectItem.OfNumber"></TcInputBox>
+                        </div>
+                        <div class="col-1">
+                            <TcInputBox Upercase="true" Label="Desenho" PlaceHolder="Número da OF" @bind-Text="projectItem.DocNumber"></TcInputBox>
+                        </div>
+                        <div class="col">
+                            <TcInputBox Upercase="true" Label="Nome do Equipamento" PlaceHolder="Descrição do documento" @bind-Text="projectItem.Name"></TcInputBox>
+                        </div>
+                    </div>
+                    @if (FileLinkSelected != null)
+                    {
+                        <div class="form-row">
+                            <div class="col-1">
+                                <TcInputBox Label="ID" PlaceHolder="@FileLinkSelected.FileLinkId.ToString()" IsReadOnly="true"></TcInputBox>
+                            </div>
+                            <div class="col-1">
+                                <TcInputBox Label="Código" @bind-Text="@FileLinkSelected.Code" IsReadOnly="true"></TcInputBox>
+                            </div>
+                            <div class="col">
+                                <TcInputBox Label="Nome - Descrição" @bind-Text="@FileLinkSelected.Name" IsReadOnly="true"></TcInputBox>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="tc-card-footer">
+                    <button class="btn btn-info" @onclick="GetManuals">Selecionar Manual</button>&emsp;&emsp;
+                    <button class="btn btn-success" @onclick="SaveItem">Salvar Item</button>
+                    <button class="btn btn-danger" @onclick="CancelItem">Cancelar Item</button>
+                </div>
+
+                @* Card lista de Manuais *@
+                @if (modeSelect == Mode.Add)
+                {
+                    <p></p>
+                    <div class="tc-card-body">
+                        <div class="form-row">
+                            <ManualList @bind-FileLink="FileLinkSelected" OptionsButton="false" SelectButton="true"></ManualList>
+                        </div>
+                    </div>
+                }
+
+            </div>
+            @*</div>*@
+            <p></p>
+
+        }
+        <p />
+        <div class="row">
+            <div id="tcLista" class="col">
+                <p class="tc-title">Itens do Projeto</p>
+                <p></p>
+                <table class="table table-hover table-striped table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="text-center" scope="col">Item</th>
+                            <th class="text-center" scope="col">Número OF</th>
+                            <th class="text-center" scope="col">Descrição do Item</th>
+                            <th class="text-center" scope="col">Número do Desenho</th>
+                            <th class="text-center" scope="col">Manual</th>
+                            <th class="text-center" scope="col">Código ERP</th>
+                            <th class="text-center" scope="col">Tipo</th>
+                            <th class="text-center" scope="col">Opções</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (project != null)
+                        {
+                            if (project.Items.Count > 0)
+                            {
+                                @foreach (ProjectItem item in itemlList)
+                                {
+                        <tr class="@IsManualExist(item)">
+                            <td class="align-middle" width="100">@item.ItemNumber</td>
+                            <td class="align-middle" width="200">@item.OfNumber</td>
+                            <td class="align-middle">@item.Name</td>
+                            <td class="align-middle">@item.DocNumber</td>
+                            <td class="align-middle">@item.FileLink.Name</td>
+                            <td class="align-middle">@item.FileLink.Code</td>
+                            <td class="align-middle">@item.FileLink.FileType</td>
+                            <td class="align-middle" width="100">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-info" @onclick="@(() => EditItem(item))">Editar</button>
+                                    <a class="btn btn-success" href="@item.FileLink.FilePath"
+                                       role="button" aria-pressed="true" target="_blank">Acessar</a>
+                                    <button class="btn btn-danger" @onclick="@(() => DeleteItem(item.ProjectItemId))">Excluir</button>
+                                </div>
+                            </td>
+                        </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td>
+                                        <h4>Sem Itens no Projeto</h4>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,138 @@
+﻿@using Controller
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration configuration;
+
+<h3>Lista de Manuais</h3>
+
+@if (manualLinks == null)
+{<h4>Carregando Itens</h4>}
+else
+{
+    <table class="table table-hover table-striped table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>Categoria</th>
+                <th>Id</th>
+                <th>Equipamento</th>
+                <th>Código</th>
+                <th>Tipo</th>
+                <th>Opções</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in manualLinks)
+            {
+            <tr onclick="@Show(item.FileLinkId.ToString())">
+                <td>@item.Category.Name</td>
+                <td>@item.FileLinkId.ToString()</td>
+                <td>@item.Name</td>
+                <td>@item.Code</td>
+                <td>@item.FileType</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        @if (selectButton)
+                        {
+                            <button class="btn btn-info" @onclick="@(() => SelectManual(item))">Selecionar</button>
+                        }
+                        <a class="btn btn-success" href="@item.FilePath"
+                           role="button" aria-pressed="true" target="_blank">Acessar</a>
+                        @if (optionsButton)
+                        {
+                            <button class="btn btn-secondary" @onclick="@(() => EditManual(item))">Editar</button>
+                            <button class="btn btn-danger" @onclick="@(() => DeleteManual(item.FileLinkId))">Excluir</button>
+                        }
+                    </div>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code{
+
+    List<FileLink> manualLinks;
+    Mode mode = Mode.None;
+    ManualController api;
+    bool selectButton = false;
+    bool optionsButton = true;
+
+    [Parameter]
+    public bool SelectButton { get => selectButton; set { selectButton = value; } }
+
+    [Parameter]
+    public bool OptionsButton { get => optionsButton; set { optionsButton = value; } }
+
+    [Parameter]
+    public bool Update { get => true; set { UpdateList(); } }
+
+    [Parameter]
+    public EventCallback<FileLink> FileLinkChanged { get; set; }
+
+    [Parameter]
+    public FileLink FileLink
+    {
+        get => FileLinkInterop;
+        set
+        {
+            if (FileLinkInterop == value) return;
+
+            FileLinkInterop = value;
+
+            FileLinkChanged.InvokeAsync(value);
+        }
+    }
+
+    protected void SelectManual(FileLink Id)
+    {
+        FileLink = Id;
+    }
+
+    private FileLink FileLinkInterop { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        api = new ManualController(configuration);
+        await LoadManuals();
+    }
+
+    public async Task UpdateList()
+    {
+        await LoadManuals();
+    }
+
+    public async Task LoadManuals()
+    {
+        manualLinks = await api.GetManuals();
+    }
+
+    protected async Task Show(string id)
+    {
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await UpdateList();
+    }
+
+    private async Task DeleteManual(int id)
+    {
+        var isSucess = await api.DeleteManual(id);
+
+        if (isSucess)
+        {
+            await UpdateList();
+            //await js.InvokeAsync<object>("ShowAlert", "Item Deletado com sucesso!");
+        }
+        else
+        {
+            //await Alert("Problema ao Deletar o item!");
+        }
+    }
+
+    protected void EditManual(FileLink fileLink)
+    {
+        FileLink = fileLink;        
+    }
+}

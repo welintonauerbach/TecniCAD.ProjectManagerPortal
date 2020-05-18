@@ -1,0 +1,52 @@
+﻿@page "/emails"
+@using Controller
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration configuration;
+
+<PageTitle Title="Emails Enviados"></PageTitle>
+
+@if (Emails == null)
+{<h4>Carregando Itens</h4>}
+else
+{
+    <table class="table table-hover table-striped table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>Num. Projeto</th>
+                <th>Id</th>
+                <th>Enviado Para</th>
+                <th>Data e Horário</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Emails)
+            {
+                <tr>
+                    <td>@item.ProjectNumber</td>
+                    <td>@item.EmailSentId</td>
+                    <td>@item.EmailTo</td>
+                    <td>@item.DateTime</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    List<EmailSent> Emails;
+    EmailsController api;
+
+    protected override async Task OnInitializedAsync()
+    {
+        api = new EmailsController(configuration);
+        await LoadEmails();
+    }
+
+    private async Task LoadEmails()
+    {
+        var result = await api.GetEmails();
+            
+        Emails = result.OrderByDescending(c => c.DateTime).ToList(); 
+    }
+}

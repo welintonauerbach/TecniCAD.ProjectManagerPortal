@@ -1,0 +1,131 @@
+﻿.tc-title {
+    color: #111;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+    text-align: left;
+}
+
+
+.tc-card-header {
+    padding: 20px 10px 10px 10px;
+    border-bottom: 2px solid #808080;
+    background-color: lightgray
+}
+
+.tc-card-body {
+    padding: 10px 10px 10px 10px;
+    border-bottom: 2px solid #808080;
+    background-color: whitesmoke;
+}
+
+.tc-card-footer {
+    padding: 10px 10px 10px 10px;
+    background-color: lightgray;
+}
+
+.tc-card-row {
+}
+
+.tc-card-main {
+    padding: 10px 10px 10px 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    border-radius: 10px 10px 10px 10px;
+    border-top: 3px solid rgba(148, 2, 2, 0.80);
+    border-right: 3px solid rgba(148, 2, 2, 0.80);
+    border-bottom: 3px solid rgba(148, 2, 2, 0.80);
+    border-left: 20px solid rgba(148, 2, 2, 0.80);
+}
+
+    .tc-card-main:hover {
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
+
+.tc-card-item {
+    padding: 10px 10px 10px 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    border-radius: 10px 10px 10px 10px;
+    border-top: 3px solid #f32121;
+    border-right: 3px solid #f32121;
+    border-bottom: 3px solid #f32121;
+    border-left: 20px solid #f32121;
+}
+
+    .tc-card-item:hover {
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
+
+.tc-card-item-2 {
+    padding: 10px 10px 10px 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    border-radius: 5px 5px 5px 5px;
+    border-top: 0px solid rgba(56, 161, 0, 0.80);
+    border-right: 0px solid rgba(232, 0, 0, 0.80);
+    border-bottom: 0px solid rgba(232, 0, 0, 0.80);
+    border-left: 10px solid rgba(33, 92, 2, 0.80);
+}
+
+    .tc-card-item-2:hover {
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
+
+.tc-buttons-container {
+    padding: 10px 10px 10px 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    transition: 0.5s;
+    border-radius: 5px 5px 5px 5px;
+    border-top: 3px solid #9e1115;
+    border-right: 10px solid #9e1115;
+    border-bottom: 3px solid #9e1115;
+    border-left: 10px solid #9e1115;
+}
+
+    .tc-buttons-container:hover {
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
+
+.tc-center {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.tc-center-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+.tc-no-manual {
+    font-weight: bold;
+    font-style: italic;
+}
+
+.tc-yes-manual {
+    font-weight: normal;
+    font-style: normal;
+}
+
+.tc-doc-incomplete {
+    font-weight: bold;
+    font-style: italic;
+    background-color: indianred
+}
+
+.tc-doc-complete {
+    font-weight: normal;
+    font-style: normal;
+    background-color: lightgreen
+}
+
+.tc-doc-empty {
+    font-weight: bold;
+    font-style: italic;
+    background-color: firebrick
+}

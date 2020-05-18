@@ -1,0 +1,252 @@
+﻿@using Controller
+@using Microsoft.Extensions.Configuration;
+
+<div id="tcComponent" class="col">
+    <div class="col">
+        <div class="tc-buttons-container">
+            <button class="btn btn-outline-danger" @onclick="AddCustomer">Adicionar Cliente</button>
+        </div>
+    </div>
+    <p></p>
+    <div id="tcComponent" class="row">
+        @if (modeCustomer == Mode.Add || modeCustomer == Mode.Edit)
+        {
+            @if (customerToAdd == null) return;
+            <div id="tcCard" class="col tc-card-item-2">
+                <div class="tc-card-header">
+                    <h4>Adicionar | Editar Item</h4>
+                </div>
+                <div class="tc-card-body">
+                    <div class="form-row">
+                        <div class="col-2">
+                            <TcInputBox Label="Número" PlaceHolder="Número do Cliente" @bind-Text="customerToAdd.Number"></TcInputBox>
+                        </div>
+                        <div class="col-2">
+                            <TcInputBox Upercase="true" Label="Cliente" PlaceHolder="Nome do Cliente" @bind-Text="customerToAdd.Name"></TcInputBox>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-2">
+                            <TcInputBox Label="Usuário" PlaceHolder="Nome do Usuário" @bind-Text="customerToAdd.UserName"></TcInputBox>
+                        </div>
+                        <div class="col-2">
+                            <TcInputBox Label="Senha" PlaceHolder="Senha de Acesso" @bind-Text="customerToAdd.Password"></TcInputBox>
+                        </div>
+                        <div class="col">
+                            <TcInputBox Label="Email" PlaceHolder="Email do Cliente" @bind-Text="customerToAdd.Email"></TcInputBox>
+                        </div>
+                    </div>
+                </div>
+                <div class="tc-card-footer">
+                    <button class="btn btn-success" @onclick="SaveCustomer">Salvar Item</button>
+                    <button class="btn btn-danger" @onclick="CancelCustomer">Cancelar Item</button>
+                </div>
+            </div>
+        }
+    </div>
+    <p></p>
+    <h4>Lista de Clientes</h4>
+    <div class="row">
+        @if (customers == null)
+        {<h4>Carregando Clientes</h4>}
+        else
+        {
+            <div class="@SetColTable()">
+                <table class="table table-hover table-striped table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Cliente</th>
+                            @if (_allCollumn)
+                            {
+                                <th>Nome</th>
+                                <th>Usuário</th>
+                                <th>Senha</th>
+                                <th>Email</th>
+                            }
+                            <th>Opções</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in customers)
+                        {
+                            <tr>
+                                <td>@item.Number</td>
+                                @if (_allCollumn)
+                                {
+                                    <td>@item.Name</td>
+                                    <td>@item.UserName</td>
+                                    <td>@item.Password</td>
+                                    <td>@item.Email</td>
+                                }
+                                <td width="100">
+                                    <div class="btn-group" role="group">
+                                        @if (_disableSelect == false)
+                                        {
+                                            <button class="btn btn-info" @onclick="@(() => SelectCustomer(item))">Selecionar</button>
+                                        }
+                                        @if (_disableEdit == false)
+                                        {
+                                            <button class="btn btn-success" @onclick="@(() => EditCustomer(item))">Editar</button>
+                                            <button class="btn btn-danger" @onclick="@(() => DeleteCustomer(item.CustomerId))">Remover</button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </div>
+</div>
+
+@code{
+    List<Customer> customers;
+    Mode modeCustomer = Mode.None;
+    ProjectController api;
+    private Customer _customer { get; set; }
+    private Customer customerToAdd;
+
+    [Inject]
+    IConfiguration configuration { get; set; }
+
+    [Parameter]
+    public EventCallback<Customer> CustomerDataChanged { get; set; }
+
+    [Parameter]
+    public bool DisableSelect { get => _disableSelect; set { _disableSelect = value; } }
+
+    [Parameter]
+    public bool DisableEdit { get => _disableEdit; set { _disableEdit = value; } }
+
+    [Parameter]
+    public bool AllCollumn { get => _allCollumn; set { _allCollumn = value; } }
+
+    private bool _disableSelect = false;
+    private bool _disableEdit = false;
+    private bool _allCollumn = true;
+
+    private string SetColTable()
+    {
+        if (_allCollumn)
+        {
+            return "table-responsive";
+        }
+        else
+        {
+            return "col-4";
+        }
+    }
+
+    protected void SelectCustomer(Customer Id)
+    {
+        CustomerData = Id;
+    }
+
+    [Parameter]
+    public Customer CustomerData
+    {
+        get => _customer;
+        set
+        {
+            if (_customer == value) return;
+
+            _customer = value;
+
+            CustomerDataChanged.InvokeAsync(value);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        api = new ProjectController(configuration);
+        await LoadCustomers();
+    }
+
+    [Parameter]
+    public bool Update { get => true; set { UpdateList(); } }
+
+    public async Task UpdateList()
+    {
+        await LoadCustomers();
+    }
+
+    public async Task LoadCustomers()
+    {
+        customers = await api.GetCustomers();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await UpdateList();
+    }
+
+    private void AddCustomer()
+    {
+        modeCustomer = Mode.Add;
+        customerToAdd = new Customer();
+    }
+
+    private void EditCustomer(Customer cust)
+    {
+        modeCustomer = Mode.Edit;
+        customerToAdd = cust;
+    }
+
+    private async Task SaveCustomer()
+    {
+        if (modeCustomer == Mode.Add)
+        {
+            var isSucess = await api.SaveCustomer(customerToAdd);
+
+            if (isSucess)
+            {
+                //await ReloadProject();
+                modeCustomer = Mode.None;
+                customerToAdd = null;
+            }
+            else
+            {
+                //await Alert("Atenção: O item não foi salvo!");
+            }
+        }
+        if (modeCustomer == Mode.Edit)
+        {
+            var isSucess = await api.UpdateCustomer(customerToAdd.CustomerId, customerToAdd);
+
+            if (isSucess)
+            {
+                //await ReloadProject();
+                modeCustomer = Mode.None;
+                customerToAdd = null;
+            }
+            else
+            {
+                //await Alert("Atenção: O item não foi salvo!");
+            }
+        }
+    }
+
+    private void CancelCustomer()
+    {
+        modeCustomer = Mode.None;
+        customerToAdd = null;
+    }
+
+    private async Task DeleteCustomer(int id)
+    {
+        var isSucess = await api.DeleteCustomer(id);
+
+        if (isSucess)
+        {
+            //await ReloadProject();
+            modeCustomer = Mode.None;
+            customerToAdd = null;
+        }
+        else
+        {
+            //await Alert("Atenção: O item não foi salvo!");
+        }
+    }
+}
