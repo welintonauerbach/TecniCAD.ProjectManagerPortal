@@ -55,7 +55,7 @@
                             <TcInputBox Label="Nome" PlaceHolder="Nome do Contato" @bind-Text="email.ToName"></TcInputBox>
                         </div>
                         <div class="col">
-                            <TcInputBox Label="Email" PlaceHolder="Endereço de Email" @bind-Text="email.ToAdress"></TcInputBox>
+                            <TcInputBox Label="Email: para mais de um endereço de email separe por ' ; '." PlaceHolder="Endereço de Email" @bind-Text="destinataries"></TcInputBox>
                         </div>
                     </div>
                     <div class="form-row">
@@ -91,7 +91,7 @@
                             <TcInputBox Upercase="true" Label="Desenho" PlaceHolder="Número da OF" @bind-Text="projectItem.DocNumber"></TcInputBox>
                         </div>
                         <div class="col">
-                            <TcInputBox Upercase="true" Label="Nome do Equipamento" PlaceHolder="Descrição do documento" @bind-Text="projectItem.Name"></TcInputBox>
+                            <TcInputBox Upercase="true" Label="Nome do Documento" PlaceHolder="Descrição do documento" @bind-Text="projectItem.Name"></TcInputBox>
                         </div>
                     </div>
                     @if (FileLinkSelected != null)

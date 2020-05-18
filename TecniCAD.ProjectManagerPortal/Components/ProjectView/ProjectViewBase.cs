@@ -199,24 +199,29 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
             modeEmail = Mode.None;
             email = null;
         }
-        
+
+        protected string destinataries;
+
         protected async Task SendEmail()
         {
             if (email != null)
             {
-                if (email.ToName == string.Empty || email.ToAdress == string.Empty)
+                var emails = destinataries.Split(';');
+                email.ToAdress = emails;
+
+                if (string.IsNullOrEmpty(email.ToName) || email.ToAdress.Length == 0)
                 {
                     return;
                 }
 
                 email.ProjectNumber = project.ProjectNumber;
-                email.Subject = $"Manuais Projeto: {project.ProjectNumber}";
+                email.Subject = $"Documentos Projeto: {project.ProjectNumber}";
                 email.ProjectList = project.Items.ToList().OrderBy(o => o.ItemNumber).ToList();
                 email.FromAdress = "cad@idugel.com.br";
                 email.FromName = "Grupo Idugel";                
             }          
             
-            var isSucess = await apiProject.SendEmail(email);
+            var isSucess = await apiProject.SendEmail(email).ConfigureAwait(false);
 
             if (isSucess)
             {                

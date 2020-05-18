@@ -235,7 +235,7 @@ namespace TecniCAD.ProjectManagerPortal.Controller
             var http = new TcHttp($"{UriEmail}");
             var content = http.GetJsonHttpContent(emailContent);
 
-            var response = await http.GetHttpClient().PostAsync(UriEmail, content);
+            var response = await http.GetHttpClient().PostAsync(UriEmail, content).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
