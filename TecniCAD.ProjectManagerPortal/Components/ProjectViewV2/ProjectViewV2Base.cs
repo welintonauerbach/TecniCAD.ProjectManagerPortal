@@ -9,7 +9,7 @@ using TecniCAD.Models;
 using TecniCAD.ProjectManagerPortal.Controller;
 using TecniCAD.ProjectManagerPortal.Models;
 
-namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
+namespace TecniCAD.ProjectManagerPortal.Components.ProjectViewV2
 {
     public class ProjectViewV2Base : ComponentBase
     {

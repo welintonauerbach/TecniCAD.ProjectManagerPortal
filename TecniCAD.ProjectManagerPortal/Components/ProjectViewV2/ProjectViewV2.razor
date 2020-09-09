@@ -1,6 +1,7 @@
-﻿@page "/project"
-@page "/project/{id}"
-@inherits TecniCAD.ProjectManagerPortal.Components.ProjectView.ProjectViewV2Base
+﻿@page "/projectv2"
+@page "/projectv2/{id}"
+@inherits TecniCAD.ProjectManagerPortal.Components.ProjectViewV2.ProjectViewV2Base
+@using TecniCAD.ProjectManagerPortal.Components.EditItem
 
 <div id="tcMainContainer" class="container-fluid">
     @* Coluna Central *@
@@ -73,65 +74,13 @@
         }
         <p />
         @*Edit Itens*@
-        @if (modeItem == Mode.Add || modeItem == Mode.Edit)
+        @if (modeItem == Mode.Add)
         {
-            @*<div id="tcComponent" class="row">*@
-            <div id="tcCard" class="col tc-card-item-2">
-                <div class="tc-card-header">
-                    <h4>Adicionar | Editar Item</h4>
-                </div>
-                <div class="tc-card-body">
-                    <div class="form-row">
-                        <div class="col-1">
-                            <TcInputBox Label="Item" PlaceHolder="Número do Item" @bind-Text="projectItem.ItemNumber"></TcInputBox>
-                        </div>
-                        <div class="col-2">
-                            <TcInputBox Upercase="true" Label="OF" PlaceHolder="Número da OF" @bind-Text="projectItem.OfNumber"></TcInputBox>
-                        </div>
-                        <div class="col-1">
-                            <TcInputBox Upercase="true" Label="Desenho" PlaceHolder="Número da OF" @bind-Text="projectItem.DocNumber"></TcInputBox>
-                        </div>
-                        <div class="col">
-                            <TcInputBox Upercase="true" Label="Nome do Documento" PlaceHolder="Descrição do documento" @bind-Text="projectItem.Name"></TcInputBox>
-                        </div>
-                    </div>
-                    @if (FileLinkSelected != null)
-                    {
-                        <div class="form-row">
-                            <div class="col-1">
-                                <TcInputBox Label="ID" PlaceHolder="@FileLinkSelected.FileLinkId.ToString()" IsReadOnly="true"></TcInputBox>
-                            </div>
-                            <div class="col-1">
-                                <TcInputBox Label="Código" @bind-Text="@FileLinkSelected.Code" IsReadOnly="true"></TcInputBox>
-                            </div>
-                            <div class="col">
-                                <TcInputBox Label="Nome - Descrição" @bind-Text="@FileLinkSelected.Name" IsReadOnly="true"></TcInputBox>
-                            </div>
-                        </div>
-                    }
-                </div>
-                <div class="tc-card-footer">
-                    <button class="btn btn-info" @onclick="GetManuals">Selecionar Manual</button>&emsp;&emsp;
-                    <button class="btn btn-success" @onclick="SaveItem">Salvar Item</button>
-                    <button class="btn btn-danger" @onclick="CancelItem">Cancelar Item</button>
-                </div>
-
-                @* Card lista de Manuais *@
-                @if (modeSelect == Mode.Add)
-                {
-                    <p></p>
-                    <div class="tc-card-body">
-                        <div class="form-row">
-                            <ManualList @bind-FileLink="FileLinkSelected" OptionsButton="false" SelectButton="true"></ManualList>
-                        </div>
-                    </div>
-                }
-
-            </div>
-            @*</div>*@
-            <p></p>
-
+            <CascadingValue Value="@projectItem" Name="ProjectItem">
+                <EditItemComponent></EditItemComponent>
+            </CascadingValue>
         }
+        else {<p /> }
         <p />
         <div class="row">
             <div id="tcLista" class="col">
