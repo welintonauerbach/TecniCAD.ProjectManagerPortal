@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -32,6 +35,11 @@ namespace TecniCAD.ProjectManagerPortal
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services
+                .AddBlazorise(options => { options.ChangeTextOnKeyPress = true; })
+                .AddBootstrapProviders()
+                .AddFontAwesomeIcons();
+
             services.AddSingleton<IConfiguration>(Configuration);
             
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -53,7 +61,7 @@ namespace TecniCAD.ProjectManagerPortal
             {
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
-                app.UseBrowserLink();                               
+                app.UseBrowserLink();
             }
             else
             {
@@ -62,11 +70,14 @@ namespace TecniCAD.ProjectManagerPortal
                 app.UseHsts();
             }
 
+            // Blazorise
+            app.UseRouting();
+            app.ApplicationServices
+                .UseBootstrapProviders()
+                .UseFontAwesomeIcons();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
-            app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -75,8 +86,7 @@ namespace TecniCAD.ProjectManagerPortal
                 endpoints.MapControllers();
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
-            });         
-            
+            });
 
         }
     }

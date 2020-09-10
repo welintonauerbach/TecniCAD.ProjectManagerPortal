@@ -27,6 +27,9 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectViewV2
         
         protected ProjectController apiProject { get; set; }
         protected ProjectItem projectItem;
+        protected ProjectItem projectItemSelected;
+        
+        
         protected List<FileLink> manualList;
         protected ManualController apiManual;
         protected EmailContent email;
@@ -44,6 +47,12 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectViewV2
         protected Mode modeManual = Mode.None;
         protected Mode modeSelect = Mode.None;
         protected Mode modeEmail = Mode.None;
+
+        protected async void TestClick()
+        {
+            await Alert("Selecione um Manual para Salvar o Item!");
+            return;
+        }
 
         protected override async Task OnInitializedAsync()
         {

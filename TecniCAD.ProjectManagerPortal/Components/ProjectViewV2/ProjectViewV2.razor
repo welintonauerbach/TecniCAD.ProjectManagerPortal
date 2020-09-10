@@ -2,12 +2,17 @@
 @page "/projectv2/{id}"
 @inherits TecniCAD.ProjectManagerPortal.Components.ProjectViewV2.ProjectViewV2Base
 @using TecniCAD.ProjectManagerPortal.Components.EditItem
+@using Blazorise.DataGrid
 
 <div id="tcMainContainer" class="container-fluid">
     @* Coluna Central *@
+
+
+
     <div class="tc-page-col col">
         @if (project != null)
         {
+            @* Título *@
             <div class="row">
                 <div class="col-3">
                     <p class="tc-title">Projeto: <strong>@project.ProjectNumber</strong></p>
@@ -80,66 +85,91 @@
                 <EditItemComponent></EditItemComponent>
             </CascadingValue>
         }
-        else {<p /> }
+        else
+        {<p />}
         <p />
-        <div class="row">
-            <div id="tcLista" class="col">
-                <p class="tc-title">Itens do Projeto</p>
-                <p></p>
-                <table class="table table-hover table-striped table-bordered">
-                    <thead class="thead-light">
-                        <tr>
-                            <th class="text-center" scope="col">Item</th>
-                            <th class="text-center" scope="col">Número OF</th>
-                            <th class="text-center" scope="col">Descrição do Item</th>
-                            <th class="text-center" scope="col">Número do Desenho</th>
-                            <th class="text-center" scope="col">Manual</th>
-                            <th class="text-center" scope="col">Código ERP</th>
-                            <th class="text-center" scope="col">Tipo</th>
-                            <th class="text-center" scope="col">Opções</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (project != null)
-                        {
-                            if (project.Items.Count > 0)
-                            {
-                                @foreach (ProjectItem item in itemlList)
-                                {
-                                    <tr class="@IsManualExist(item)">
-                                        <td class="align-middle" width="100">@item.ItemNumber</td>
-                                        <td class="align-middle" width="200">@item.OfNumber</td>
-                                        <td class="align-middle">@item.Name</td>
-                                        <td class="align-middle">@item.DocNumber</td>
-                                        <td class="align-middle">@item.FileLink.Name</td>
-                                        <td class="align-middle">@item.FileLink.Code</td>
-                                        <td class="align-middle">@item.FileLink.FileType</td>
-                                        <td class="align-middle" width="100">
-                                            @*Area dos Botões*@
-                                            <div class="btn-group" role="group">
-                                                <button class="btn btn-info" @onclick="@(() => OpenDataView())">Itens Reposição</button>
-                                                <button class="btn btn-info" @onclick="@(() => EditItem(item))">Editar</button>
-                                                <button class="btn btn-outline-primary" @onclick="@(() => DuplicateItem(item))">Duplicar</button>
-                                                <a class="btn btn-success" href="@item.FileLink.FilePath"
-                                                   role="button" aria-pressed="true" target="_blank">Acessar</a>
-                                                <button class="btn btn-danger" @onclick="@(() => DeleteItem(item.ProjectItemId))">Excluir</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td>
-                                        <h4>Sem Itens no Projeto</h4>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
+        @if (project != null)
+        {
+            @*@foreach (ProjectItem item in itemlList)
+                {
+                    <ul>
+                        <li>@item.ItemNumber</li>
+                        <li>@item.OfNumber</li>
+                        <li>@item.Name</li>
+                        <li>@item.FileLink.Name</li>
+                    </ul>
+
+                }*@
+
+            @*DataGrid*@
+            <div class="row">
+                <DataGrid TItem="ProjectItem"
+                          Data="@itemlList"
+                          @bind-SelectedRow="@projectItemSelected"
+                          Striped="true"
+                          Bordered="true"
+                          Hoverable="true"
+                          >
+                    
+                    <DataGridCommandColumn TItem="ProjectItem" Width="170px">
+                        <NewCommandTemplate>
+                            <Button Color="Color.Success">New</Button>
+                        </NewCommandTemplate>                          
+                    </DataGridCommandColumn>
+                                        
+
+                    
+                    <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.ItemNumber)" Caption="Item"></DataGridColumn>
+                    <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.OfNumber)" Caption="Número OF"></DataGridColumn>
+                    <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.Name)" Caption="Descrição do Item"></DataGridColumn>
+                    <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.DocNumber)" Caption="Número do Desenho"></DataGridColumn>
+
+                    <DataGridColumn TItem="ProjectItem" Field="FileLink.Name" Caption="Manual"></DataGridColumn>
+                    <DataGridColumn TItem="ProjectItem" Field="FileLink.Code" Caption="Código ERP"></DataGridColumn>
+                    <DataGridColumn TItem="ProjectItem" Field="FileLink.FileType" Caption="Tipo"></DataGridColumn>
+                    
+                </DataGrid>
             </div>
-        </div>
+            if (projectItemSelected != null)
+            {
+                <ul>
+                    <li>@projectItemSelected.ItemNumber</li>
+                    <li>@projectItemSelected.OfNumber</li>
+                    <li>@projectItemSelected.Name</li>
+                    <li>@projectItemSelected.FileLink.Name</li>
+                    @if (projectItemSelected.SparePartsCollections != null)
+                    {
+                        foreach (SparePartsCollection sparePartsCollection in projectItemSelected.SparePartsCollections)
+
+                        {
+                            <ol>
+                                <ul>
+                            <li>ID: @sparePartsCollection.ProjectItemId</li>
+
+                            
+                            @foreach (SparePart sparePart in sparePartsCollection.SpareParts)
+                            {
+                                
+                                    <ul>
+                                        <li>@sparePart.ItemNumber</li>
+                                        <li>@sparePart.Name</li>
+                                        <li>@sparePart.Description</li>
+                                        <li>@sparePart.Quantity</li>
+                                        <li>@sparePart.Code</li>
+                                    </ul>
+                                
+                            }
+                                </ul>
+                            </ol>
+                        }
+
+                    }
+                </ul>
+            }
+            <div class="row">
+
+            </div>
+
+        }
     </div>
 </div>
