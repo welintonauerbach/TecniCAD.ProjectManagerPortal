@@ -35,11 +35,11 @@ else
 
 @code {
     List<EmailSent> Emails;
-    EmailsController api;
+    EmailsService api;
 
     protected override async Task OnInitializedAsync()
     {
-        api = new EmailsController(configuration);
+        api = new EmailsService(configuration);
         await LoadEmails();
     }
 

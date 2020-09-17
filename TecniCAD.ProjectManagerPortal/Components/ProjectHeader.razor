@@ -1,0 +1,32 @@
+﻿<div id="tcMain" class="mat-elevation-z0 row">
+    @if (Project != null)
+    {
+        <div class="col tc-card-main">
+            <div class="tc-card-header">
+                <h4>Cliente: <strong>@Project.Customer.Number</strong></h4>
+            </div>
+            <div class="tc-card-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="flex-grow-1 p-2"><strong>Projeto : </strong>@Project.ProjectNumber</div>
+                    </div>
+                    <div class="row">
+                        <div class="flex-grow-1 p-2 justify-content-center"><strong>Descrição : </strong>@Project.ProjectName</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <h4>Carregando Dados...</h4>
+        <h4>Aguarde ...</h4>
+    }
+</div>
+
+@code{
+
+    [Parameter]
+    public Project Project { get; set; }
+
+}

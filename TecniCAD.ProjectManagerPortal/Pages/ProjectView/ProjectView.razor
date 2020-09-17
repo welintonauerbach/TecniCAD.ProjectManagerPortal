@@ -1,76 +1,31 @@
 ﻿@page "/project"
 @page "/project/{id}"
-@inherits TecniCAD.ProjectManagerPortal.Components.ProjectView.ProjectViewV2Base
+@inherits TecniCAD.ProjectManagerPortal.Pages.ProjectView.ProjectViewBase
+@using TecniCAD.ProjectManagerPortal.Components
+@using TecniCAD.ProjectManagerPortal.Services
+@inject IProjectService apiProject;
+@inject IManualService apiManual;
 
 <div id="tcMainContainer" class="container-fluid">
-    @* Coluna Central *@
     <div class="tc-page-col col">
-        @if (project != null)
-        {
-            <div class="row">
-                <div class="col-3">
-                    <p class="tc-title">Projeto: <strong>@project.ProjectNumber</strong></p>
-                </div>
-            </div>
-            <div id="tcMain" class="row">
-                <div class="col tc-card-main">
-                    <div class="tc-card-header">
-                        <h4>Cliente: <strong>@project.Customer.Number</strong></h4>
-                    </div>
-                    <div class="tc-card-body">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="flex-grow-1 p-2"><strong>Projeto : </strong>@project.ProjectNumber</div>
-                            </div>
-                            <div class="row">
-                                <div class="flex-grow-1 p-2 justify-content-center"><strong>Descrição : </strong>@project.ProjectName</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-            </div>
-        }
-        else
-        {
-            <h4>Carregando Dados...</h4>
-            <h4>Aguarde ...</h4>
-        }
-        <p></p>
+        @*Header Project*@
+        <ProjectHeader Project="@project"></ProjectHeader>
+
+        @*Action Butons*@
         <div class="tc-buttons-container">
             <button class="btn btn-outline-danger" @onclick="AddItem">Adicionar Item</button>
             <button class="btn btn-warning" @onclick="ComposeEmail">Enviar Email</button>
         </div>
-        @*Card Enviar Email*@
-        @if (modeEmail == Mode.Add)
-        {
-            <p></p>
-            <div class="col tc-card-item-2">
-                <div class="tc-card-header">
-                    <h4>Enviar email dos documentos</h4>
-                </div>
-                <div class="tc-card-body">
-                    <div class="form-row">
-                        <div class="col-3">
-                            <TcInputBox Label="Nome" PlaceHolder="Nome do Contato" @bind-Text="email.ToName"></TcInputBox>
-                        </div>
-                        <div class="col">
-                            <TcInputBox Label="Email: para mais de um endereço de email separe por ' ; '." PlaceHolder="Endereço de Email" @bind-Text="destinataries"></TcInputBox>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="col">
-                            <TcInputBox Label="Mensagem Adicional (Opcional)" PlaceHolder="Digite uma mensagem adicional para enviar no email" @bind-Text="email.MessageCustom"></TcInputBox>
-                        </div>
-                    </div>
-                </div>
-                <div class="tc-card-footer">
-                    <button class="btn btn-success" @onclick="SendEmail">Enviar</button>
-                    <button class="btn btn-danger" @onclick="CancelComposeEmail">Cancelar</button>
-                </div>
 
-            </div>
-        }
+        @*Card Enviar Email*@
+        <CascadingValue Value="@modeEmail" Name="SendEmail">
+            <CascadingValue Value="@project" Name="Project">
+            <CascadingValue Value="@email" Name="EmailContent">
+                <SendEmailView></SendEmailView>
+            </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
         <p />
         @*Edit Itens*@
         @if (modeItem == Mode.Add || modeItem == Mode.Edit)

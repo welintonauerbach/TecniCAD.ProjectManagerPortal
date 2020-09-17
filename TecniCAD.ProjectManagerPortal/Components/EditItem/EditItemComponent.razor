@@ -1,4 +1,4 @@
-﻿@using TecniCAD.ProjectManagerPortal.Controller
+﻿@using TecniCAD.ProjectManagerPortal.Services
 
 <div id="tcCard" class="col tc-card-item-2">
     <div class="tc-card-header">
@@ -62,8 +62,12 @@
     protected Project project;
     protected FileLink FileLinkSelected;
     protected List<FileLink> manualList;
-    protected ProjectController apiProject { get; set; }
-    protected ManualController apiManual;
+
+    [Inject]
+    protected IProjectService apiProject { get; set; }
+
+    [Inject]
+    protected IManualService apiManual { get; set; }
 
     protected Mode modeSelect = Mode.None;
 

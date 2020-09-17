@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using TecniCAD.Models;
 
-namespace TecniCAD.ProjectManagerPortal.Controller
+namespace TecniCAD.ProjectManagerPortal.Services
 {
-    public interface IProjectController
+    public interface IProjectService
     {
         Task<bool> DeleteCustomer(int Id);
         Task<bool> DeleteProjectItem(int Id);
@@ -16,5 +16,8 @@ namespace TecniCAD.ProjectManagerPortal.Controller
         Task<bool> SaveProjectItem(ProjectItem projectItem);
         Task<bool> UpdateCustomer(int Id, Customer customer);
         Task<bool> UpdateProjectItem(int Id, ProjectItem projectItem);
+        Task<bool> UpdateProject(int Id, Project project);
+        Task<bool> SaveCustomer(Customer customer);
+        Task<bool> SendEmail(EmailContent emailContent);
     }
 }

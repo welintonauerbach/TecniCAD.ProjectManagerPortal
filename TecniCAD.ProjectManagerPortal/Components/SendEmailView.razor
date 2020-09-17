@@ -1,0 +1,93 @@
+﻿@using Services
+@inject IProjectService apiProject
+@inject IMatToaster ShowAlert
+
+@if (Project != null)
+{
+    @if (ModeEmail == Mode.Add)
+    {
+        if (EmailContent != null)
+        {
+            <div class="col tc-card-item-2">
+                <div class="tc-card-header">
+                    <h4>Enviar email dos documentos</h4>
+                </div>
+                <div class="tc-card-body">
+                    <div class="form-row">
+                        <div class="col-3">
+                            <TcInputBox Class="mat-layout-grid-cell mat-layout-grid-cell-span-3"
+                                        Label="Nome" PlaceHolder="Nome do Contato" @bind-Text="EmailContent.ToName"></TcInputBox>
+                        </div>
+                        <div class="col">
+                            <TcInputBox Class="mat-layout-grid-cell mat-layout-grid-cell-span-9"
+                                        Label="Email: para mais de um endereço de email separe por ' ; '." PlaceHolder="Endereço de Email" @bind-Text="destinataries"></TcInputBox>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col">
+                            <TcInputBox Class="mat-layout-grid-cell mat-layout-grid-cell-span-12"
+                                        Label="Mensagem Adicional (Opcional)" PlaceHolder="Digite uma mensagem adicional para enviar no email" @bind-Text="EmailContent.MessageCustom"></TcInputBox>
+                        </div>
+                    </div>
+                </div>
+                <div class="tc-card-footer">
+                    <button class="btn btn-success" @onclick="SendEmail">Enviar</button>
+                    <button class="btn btn-danger" @onclick="CancelComposeEmail">Cancelar</button>
+                </div>
+
+            </div>
+        }
+    }
+}
+@code
+{
+    [CascadingParameter(Name = "SendEmail")]
+    public Mode ModeEmail { get; set; }
+
+    [CascadingParameter(Name = "Project")]
+    public Project Project { get; set; }
+
+    [CascadingParameter(Name = "EmailContent")]
+    public EmailContent EmailContent { get; set; }
+
+    protected string destinataries;
+
+    protected void CancelComposeEmail()
+    {
+        ModeEmail = Mode.None;
+        EmailContent = null;
+    }
+
+    protected async Task SendEmail()
+    {
+        if (EmailContent != null)
+        {
+            var emails = destinataries.Split(';');
+            EmailContent.ToAdress = emails;
+
+            if (string.IsNullOrEmpty(EmailContent.ToName) || EmailContent.ToAdress.Length == 0)
+            {
+                return;
+            }
+
+            EmailContent.ProjectNumber = Project.ProjectNumber;
+            EmailContent.Subject = $"Documentos Projeto: {Project.ProjectNumber}";
+            EmailContent.ProjectList = Project.Items.ToList().OrderBy(o => o.ItemNumber).ToList();
+            EmailContent.FromAdress = "cad@idugel.com.br";
+            EmailContent.FromName = "Grupo Idugel";
+        }
+
+        var isSucess = await apiProject.SendEmail(EmailContent).ConfigureAwait(false);
+
+        if (isSucess)
+        {
+            ShowAlert.Add("Email enviado com sucesso!", MatToastType.Success);
+            ModeEmail = Mode.None;
+        }
+        else
+        {
+            ShowAlert.Add("Falha ao enviar o Email", MatToastType.Warning);
+        }
+
+    }
+}

@@ -1,4 +1,4 @@
-﻿@using Controller
+﻿@using Services
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration configuration;
 
@@ -91,7 +91,8 @@
     string categoryName;
     string categoryDesc;
 
-    ManualController api;
+    [Inject]
+    IManualService api { get; set; }
 
     Mode mode = Mode.None;
     Mode modeCat = Mode.None;
@@ -125,7 +126,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        api = new ManualController(configuration);
+        //api = new ManualController(configuration);
         await LoadCategories();
 
     }

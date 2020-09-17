@@ -2,36 +2,44 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MatBlazor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Microsoft.JSInterop;
 using TecniCAD.Models;
 using TecniCAD.ProjectManagerPortal.Controller;
 using TecniCAD.ProjectManagerPortal.Models;
+using TecniCAD.ProjectManagerPortal.Service;
+using TecniCAD.ProjectManagerPortal.Services;
 
-namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
+namespace TecniCAD.ProjectManagerPortal.Pages.ProjectView
 {
-    public class ProjectViewV2Base : ComponentBase
+    public class ProjectViewBase : ComponentBase
     {
         [Inject]
-        IJSRuntime js { get; set; }
+        protected IMatToaster ShowAlert { get; set; }
 
         [Inject]
         IConfiguration configuration { get; set; }
+
 
         [Parameter]
         public string Id { get; set; }
 
         protected Project project;
         protected List<ProjectItem> itemlList;
+
+        [Inject]
+        protected IProjectService apiProject { get; set; }
         
-        protected ProjectController apiProject { get; set; }
+        [Inject]
+        protected IManualService apiManual { get; set; }
+
         protected ProjectItem projectItem;
         protected List<FileLink> manualList;
-        protected ManualController apiManual;
         protected EmailContent email;
         protected FileLink FileLinkSelected;
-        
+
         protected string TextId;
         protected string ManualFileId;
         protected string ManualCode;
@@ -45,10 +53,11 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
         protected Mode modeSelect = Mode.None;
         protected Mode modeEmail = Mode.None;
 
+
         protected override async Task OnInitializedAsync()
         {
-            apiProject = new ProjectController(configuration);
-            apiManual = new ManualController(configuration);
+            //apiProject = new ProjectController(configuration);
+            //apiManual = new ManualController(configuration);
             await LoadProject();
             await LoadManual();
         }
@@ -59,7 +68,7 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
             {
                 var id = Convert.ToInt32(Id);
 
-                project = await apiProject.GetProject(id);
+                project = await apiProject.GetProject(id).ConfigureAwait(false);
                 itemlList = project.Items.OrderBy(x => x.ItemNumber).ToList();
             }
             catch (Exception ex)
@@ -72,7 +81,7 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
         {
             try
             {
-                manualList = await apiManual.GetManuals();
+                manualList = await apiManual.GetManuals().ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -94,7 +103,7 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
             {
                 if (FileLinkSelected == null)
                 {
-                    await Alert("Selecione um Manual para Salvar o Item!");
+                    ShowAlert.Add("Selecione um Manual para Salvar o Item!",MatToastType.Danger);
                     return;
                 }
                 projectItem.FileLinkId = FileLinkSelected.FileLinkId;
@@ -108,10 +117,11 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
                     HideManuals();
                     projectItem = null;
                     FileLinkSelected = null;
+                    ShowAlert.Add("Item Adicionado com Sucesso", MatToastType.Success);
                 }
                 else
                 {
-                    await Alert("Atenção: O item não foi salvo!");
+                    ShowAlert.Add("Atenção: O item não foi salvo!",MatToastType.Warning);
                 }
             }
 
@@ -126,7 +136,7 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
                     HideManuals();
                     projectItem = null;
                     FileLinkSelected = null;
-                    await Alert("Item salvo com sucesso!");
+                    ShowAlert.Add("Item salvo com sucesso!",MatToastType.Success);
                 }
             }
 
@@ -194,7 +204,7 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
                 ProjectId = item.ProjectId
             };
 
-            var isSucess = await apiProject.SaveProjectItem(duplicateItem);
+            var isSucess = await apiProject.SaveProjectItem(duplicateItem).ConfigureAwait(false);
 
             if (isSucess)
             {
@@ -202,7 +212,7 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
             }
             else
             {
-                await Alert("Atenção: O item não foi salvo!");
+                ShowAlert.Add("Atenção: O item não foi salvo!", MatToastType.Warning);
             }
 
         }
@@ -214,64 +224,18 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectView
             if (isSucess)
             {
                 await ReloadProject();
-                //await js.InvokeAsync<object>("ShowAlert", "Item Deletado com sucesso!");
+                ShowAlert.Add("Item Deletado com sucesso!", MatToastType.Success);
             }
             else
             {
-                await Alert("Problema ao Deletar o item!");
+                ShowAlert.Add("Problema ao Deletar o item!", MatToastType.Warning);
             }
-        }
-
-        private async Task Alert(string msg)
-        {
-            await js.InvokeAsync<object>("ShowAlert", msg);
         }
 
         protected void ComposeEmail()
         {
             modeEmail = Mode.Add;
             email = new EmailContent();
-        }
-        
-        protected void CancelComposeEmail()
-        {
-            modeEmail = Mode.None;
-            email = null;
-        }
-
-        protected string destinataries;
-
-        protected async Task SendEmail()
-        {
-            if (email != null)
-            {
-                var emails = destinataries.Split(';');
-                email.ToAdress = emails;
-
-                if (string.IsNullOrEmpty(email.ToName) || email.ToAdress.Length == 0)
-                {
-                    return;
-                }
-
-                email.ProjectNumber = project.ProjectNumber;
-                email.Subject = $"Documentos Projeto: {project.ProjectNumber}";
-                email.ProjectList = project.Items.ToList().OrderBy(o => o.ItemNumber).ToList();
-                email.FromAdress = "cad@idugel.com.br";
-                email.FromName = "Grupo Idugel";                
-            }          
-            
-            var isSucess = await apiProject.SendEmail(email).ConfigureAwait(false);
-
-            if (isSucess)
-            {                
-                await Alert("Email enviado com sucesso!");
-                modeEmail = Mode.None;
-            }
-            else
-            {
-                await Alert("Falha ao enviar o Email");
-            }
-
         }
 
         protected string IsManualExist(ProjectItem item)

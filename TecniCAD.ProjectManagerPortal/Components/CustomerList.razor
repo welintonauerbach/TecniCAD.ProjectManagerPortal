@@ -1,4 +1,4 @@
-﻿@using Controller
+﻿@using Services
 @using Microsoft.Extensions.Configuration;
 
 <div id="tcComponent" class="col">
@@ -102,9 +102,13 @@
 </div>
 
 @code{
+
+    [Inject]
+    IProjectService api { get; set; }
+
     List<Customer> customers;
     Mode modeCustomer = Mode.None;
-    ProjectController api;
+
     private Customer _customer { get; set; }
     private Customer customerToAdd;
 
@@ -160,7 +164,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        api = new ProjectController(configuration);
+        //api = new ProjectController(configuration);
         await LoadCustomers();
     }
 

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Blazorise;
-using Blazorise.Bootstrap;
-using Blazorise.Icons.FontAwesome;
+using MatBlazor;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -17,7 +17,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TecniCAD.ProjectManagerPortal.Areas.Identity;
+using TecniCAD.ProjectManagerPortal.Controller;
 using TecniCAD.ProjectManagerPortal.Data;
+using TecniCAD.ProjectManagerPortal.Service;
+using TecniCAD.ProjectManagerPortal.Services;
 
 namespace TecniCAD.ProjectManagerPortal
 {
@@ -35,10 +38,8 @@ namespace TecniCAD.ProjectManagerPortal
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddBlazorise(options => { options.ChangeTextOnKeyPress = true; })
-                .AddBootstrapProviders()
-                .AddFontAwesomeIcons();
+
+            services.AddScoped<HttpClient>();
 
             services.AddSingleton<IConfiguration>(Configuration);
             
@@ -50,8 +51,22 @@ namespace TecniCAD.ProjectManagerPortal
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();                     
-            
+            services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+
+            services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<IManualService, ManualService>();
+
+            // Alert Configuration
+            services.AddMatToaster(config =>
+            {
+                config.Position = MatToastPosition.TopCenter;
+                config.PreventDuplicates = true;
+                config.NewestOnTop = true;
+                config.ShowCloseButton = true;
+                config.MaximumOpacity = 100;
+                config.VisibleStateDuration = 4000;
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,10 +87,7 @@ namespace TecniCAD.ProjectManagerPortal
 
             // Blazorise
             app.UseRouting();
-            app.ApplicationServices
-                .UseBootstrapProviders()
-                .UseFontAwesomeIcons();
-
+            
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();

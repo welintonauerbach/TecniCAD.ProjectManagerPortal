@@ -2,174 +2,97 @@
 @page "/projectv2/{id}"
 @inherits TecniCAD.ProjectManagerPortal.Components.ProjectViewV2.ProjectViewV2Base
 @using TecniCAD.ProjectManagerPortal.Components.EditItem
-@using Blazorise.DataGrid
-
-<div id="tcMainContainer" class="container-fluid">
-    @* Coluna Central *@
+@using TecniCAD.ProjectManagerPortal.Components.ProjectViewV2.Title
+@using TecniCAD.ProjectManagerPortal.Components.ProjectViewV2.EditArea
 
 
+<ProjectTitle Project="project"></ProjectTitle>
 
-    <div class="tc-page-col col">
-        @if (project != null)
+@*Edit Itens*@
+@if (modeItem == Mode.Add)
+{
+    <CascadingValue Value="@projectItem" Name="ProjectItem">
+        <EditItemComponent></EditItemComponent>
+    </CascadingValue>
+}
+else
+{
+    <p />
+}
+
+@if (project != null)
+{
+    @*DataGrid*@
+
+    @if (modeItem == Mode.Edit)
+    {
+        @if (projectItem != null)
         {
-            @* Título *@
-            <div class="row">
-                <div class="col-3">
-                    <p class="tc-title">Projeto: <strong>@project.ProjectNumber</strong></p>
-                </div>
-            </div>
-            <div id="tcMain" class="row">
-                <div class="col tc-card-main">
-                    <div class="tc-card-header">
-                        <h4>Cliente: <strong>@project.Customer.Number</strong></h4>
-                    </div>
-                    <div class="tc-card-body">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="flex-grow-1 p-2"><strong>Projeto : </strong>@project.ProjectNumber</div>
-                            </div>
-                            <div class="row">
-                                <div class="flex-grow-1 p-2 justify-content-center"><strong>Descrição : </strong>@project.ProjectName</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+            <EditItemArea ProjectItem="projectItem"></EditItemArea>
         }
-        else
-        {
-            <h4>Carregando Dados...</h4>
-            <h4>Aguarde ...</h4>
-        }
-        <p></p>
-        <div class="tc-buttons-container">
-            <button class="btn btn-outline-danger" @onclick="AddItem">Adicionar Item</button>
-            <button class="btn btn-warning" @onclick="ComposeEmail">Enviar Email</button>
-        </div>
-        @*Card Enviar Email*@
-        @if (modeEmail == Mode.Add)
-        {
-            <p></p>
-            <div class="col tc-card-item-2">
-                <div class="tc-card-header">
-                    <h4>Enviar email dos documentos</h4>
-                </div>
-                <div class="tc-card-body">
-                    <div class="form-row">
-                        <div class="col-3">
-                            <TcInputBox Label="Nome" PlaceHolder="Nome do Contato" @bind-Text="email.ToName"></TcInputBox>
+    }
+    <MatTable Items="@project.Items" AllowSelection="true" FilterByColumnName="OF"        >
+        <MatTableHeader>
+            <th>Item</th>
+            <th>OF</th>
+            <th>Descrição</th>
+            <th>Nº Documento</th>
+            <th>Nome do Documento</th>
+            <th>Código ERP</th>
+            <th>Tipo</th>
+            <th>Opções</th>
+        </MatTableHeader>
+        <MatTableRow>
+            <td>@context.ItemNumber</td>
+            <td>@context.OfNumber</td>
+            <td>@context.Name</td>
+            <td>@context.DocNumber</td>
+            <td>@context.FileLink.Name</td>
+            <td>@context.FileLink.Code</td>
+            <td>@context.FileLink.FileType</td>
+            <td><MatButton Raised="true" Icon="favorite" OnClick="@(e => EditItem(context))">Editar</MatButton></td>
+        </MatTableRow>
+</MatTable>
+
+    @*<DataGrid TItem="ProjectItem"
+              Data="@itemlList"
+              @bind-SelectedRow="@projectItemSelected"
+              Striped="true"
+              Borderless="true"
+              Sortable="true"
+              ShowPager="true"
+              PageSize="10"
+              Bordered="true"
+              Hoverable="true"
+              Responsive="true"
+              DetailRowTrigger="@((item) => item.ProjectItemId == projectItemSelected?.ProjectItemId)">
+        <DataGridColumns>
+            <DataGridCommandColumn TItem="ProjectItem" EditCommandAllowed="true" CancelCommandAllowed="true" DeleteCommandAllowed="true" NewCommandAllowed="true" SaveCommandAllowed="true">
+                <NewCommandTemplate>
+                    <Button Color="Color.Success">Edit</Button>
+                </NewCommandTemplate>
+            </DataGridCommandColumn>
+            <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.ItemNumber)" Caption="Item"></DataGridColumn>
+            <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.OfNumber)" Caption="Número OF"></DataGridColumn>
+            <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.Name)" Caption="Descrição do Item"></DataGridColumn>
+            <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.DocNumber)" Caption="Número do Desenho"></DataGridColumn>
+            <DataGridColumn TItem="ProjectItem" Field="FileLink.Name" Caption="Manual"></DataGridColumn>
+            <DataGridColumn TItem="ProjectItem" Field="FileLink.Code" Caption="Código ERP"></DataGridColumn>
+            <DataGridColumn TItem="ProjectItem" Field="FileLink.FileType" Caption="Tipo"></DataGridColumn>
+        </DataGridColumns>
+        <DetailRowTemplate>
+            @{
+                var itemContext = (context as ProjectItem)?.SparePartsCollections;
+                <Card>
+                    <CardTitle>Detalhes</CardTitle>
+                    <CardBody>                        
+                        <div>
+                            Quantidade de peças de reposição: @itemContext.Count
                         </div>
-                        <div class="col">
-                            <TcInputBox Label="Email: para mais de um endereço de email separe por ' ; '." PlaceHolder="Endereço de Email" @bind-Text="destinataries"></TcInputBox>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="col">
-                            <TcInputBox Label="Mensagem Adicional (Opcional)" PlaceHolder="Digite uma mensagem adicional para enviar no email" @bind-Text="email.MessageCustom"></TcInputBox>
-                        </div>
-                    </div>
-                </div>
-                <div class="tc-card-footer">
-                    <button class="btn btn-success" @onclick="SendEmail">Enviar</button>
-                    <button class="btn btn-danger" @onclick="CancelComposeEmail">Cancelar</button>
-                </div>
-
-            </div>
-        }
-        <p />
-        @*Edit Itens*@
-        @if (modeItem == Mode.Add)
-        {
-            <CascadingValue Value="@projectItem" Name="ProjectItem">
-                <EditItemComponent></EditItemComponent>
-            </CascadingValue>
-        }
-        else
-        {<p />}
-        <p />
-        @if (project != null)
-        {
-            @*@foreach (ProjectItem item in itemlList)
-                {
-                    <ul>
-                        <li>@item.ItemNumber</li>
-                        <li>@item.OfNumber</li>
-                        <li>@item.Name</li>
-                        <li>@item.FileLink.Name</li>
-                    </ul>
-
-                }*@
-
-            @*DataGrid*@
-            <div class="row">
-                <DataGrid TItem="ProjectItem"
-                          Data="@itemlList"
-                          @bind-SelectedRow="@projectItemSelected"
-                          Striped="true"
-                          Bordered="true"
-                          Hoverable="true"
-                          >
-                    
-                    <DataGridCommandColumn TItem="ProjectItem" Width="170px">
-                        <NewCommandTemplate>
-                            <Button Color="Color.Success">New</Button>
-                        </NewCommandTemplate>                          
-                    </DataGridCommandColumn>
-                                        
-
-                    
-                    <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.ItemNumber)" Caption="Item"></DataGridColumn>
-                    <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.OfNumber)" Caption="Número OF"></DataGridColumn>
-                    <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.Name)" Caption="Descrição do Item"></DataGridColumn>
-                    <DataGridColumn TItem="ProjectItem" Field="@nameof(ProjectItem.DocNumber)" Caption="Número do Desenho"></DataGridColumn>
-
-                    <DataGridColumn TItem="ProjectItem" Field="FileLink.Name" Caption="Manual"></DataGridColumn>
-                    <DataGridColumn TItem="ProjectItem" Field="FileLink.Code" Caption="Código ERP"></DataGridColumn>
-                    <DataGridColumn TItem="ProjectItem" Field="FileLink.FileType" Caption="Tipo"></DataGridColumn>
-                    
-                </DataGrid>
-            </div>
-            if (projectItemSelected != null)
-            {
-                <ul>
-                    <li>@projectItemSelected.ItemNumber</li>
-                    <li>@projectItemSelected.OfNumber</li>
-                    <li>@projectItemSelected.Name</li>
-                    <li>@projectItemSelected.FileLink.Name</li>
-                    @if (projectItemSelected.SparePartsCollections != null)
-                    {
-                        foreach (SparePartsCollection sparePartsCollection in projectItemSelected.SparePartsCollections)
-
-                        {
-                            <ol>
-                                <ul>
-                            <li>ID: @sparePartsCollection.ProjectItemId</li>
-
-                            
-                            @foreach (SparePart sparePart in sparePartsCollection.SpareParts)
-                            {
-                                
-                                    <ul>
-                                        <li>@sparePart.ItemNumber</li>
-                                        <li>@sparePart.Name</li>
-                                        <li>@sparePart.Description</li>
-                                        <li>@sparePart.Quantity</li>
-                                        <li>@sparePart.Code</li>
-                                    </ul>
-                                
-                            }
-                                </ul>
-                            </ol>
-                        }
-
-                    }
-                </ul>
+                    </CardBody>
+                </Card>
             }
-            <div class="row">
+        </DetailRowTemplate>
+    </DataGrid>*@
+}
 
-            </div>
-
-        }
-    </div>
-</div>

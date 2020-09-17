@@ -1,4 +1,6 @@
-﻿<label>@Label</label>
+﻿@*<MatTextField class="@(Class)" @bind-Value="@Text" Label="@Label" Outlined="true">
+    </MatTextField>*@
+<label>@Label</label>
 <input class="form-control @Uppercase()" readonly="@IsReadOnly" placeholder="@PlaceHolder" @bind="@Text"/>
 
 @code {
@@ -47,8 +49,42 @@
         get;
         set;
     }
-    
-    bool upper = false;       
+
+    [Parameter]
+    public bool FullWidth
+    {
+        get => fullWidth;
+        set
+        {
+            if (fullWidth == value) return;
+
+            fullWidth = value;
+        }
+    }
+
+    [Parameter]
+    public string Class { get; set; }
+
+    private string _text;
+    private string _textId;
+    bool upper = false;
+    bool fullWidth = false;
+    static string matSizeString = "mat-layout-grid-cell mat-layout-grid-cell-span-";
+    string size = $"{matSizeString}2";
+
+    string sizeValidation()
+    {
+        if (fullWidth == true)
+        {
+            return string.Empty;
+        }
+        else
+        {
+            return size;
+        }
+    }
+
+
 
     private string Uppercase()
     {
@@ -58,7 +94,6 @@
             return string.Empty;
     }
 
-    private string _text;
-    private string _textId;
+
 
 }

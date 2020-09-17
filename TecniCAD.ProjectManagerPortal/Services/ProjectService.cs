@@ -1,32 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using TecniCAD.Models;
-using TecniCAD.ProjectManagerPortal.Models;
+using TecniCAD.ProjectManagerPortal.Controller;
+
 using TecniCAD.Utils;
 
-namespace TecniCAD.ProjectManagerPortal.Controller
+namespace TecniCAD.ProjectManagerPortal.Services
 {
-
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProjectController : ControllerBase, IProjectController
+    
+    public class ProjectService : ControllerBase, IProjectService
     {
-        //string baseUrl = "http://eng01:5000/";
-        //string baseAdressProjects = "api/projects";
-        //string baseAdressCustomers = "api/customers";
-        //string baseAdressProjectItems = "api/projectitems";
-        //string baseAdressEmail = "api/email";
-
-        //string baseUrl;
-        //string baseAdressProjects;
-        //string baseAdressCategories;
-        //string baseAdressProjectItems;
-
         string baseUrl;
         string baseAdressProjects;
         string baseAdressCustomers;
@@ -41,7 +27,7 @@ namespace TecniCAD.ProjectManagerPortal.Controller
         //private readonly SiteConfig _siteConfig;
         private IConfiguration _configuration;
 
-        public ProjectController(IConfiguration configuration)
+        public ProjectService(IConfiguration configuration)
         {
             _configuration = configuration;
 

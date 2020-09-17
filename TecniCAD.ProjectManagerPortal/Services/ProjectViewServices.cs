@@ -13,7 +13,7 @@ namespace TecniCAD.ProjectManagerPortal.Services
         void Delete();
     }
 
-    public class ProjectService : ITcServices
+    public class ProjectServices : ITcServices
     {
         public void Add()
         {

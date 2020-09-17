@@ -8,33 +8,32 @@ using Microsoft.JSInterop;
 using TecniCAD.Models;
 using TecniCAD.ProjectManagerPortal.Controller;
 using TecniCAD.ProjectManagerPortal.Models;
+using TecniCAD.ProjectManagerPortal.Service;
+using TecniCAD.ProjectManagerPortal.Services;
 
 namespace TecniCAD.ProjectManagerPortal.Components.ProjectViewV2
 {
     public class ProjectViewV2Base : ComponentBase
     {
-        [Inject]
-        IJSRuntime js { get; set; }
+        [Inject] IJSRuntime js { get; set; }
 
-        [Inject]
-        IConfiguration configuration { get; set; }
+        [Inject] IConfiguration configuration { get; set; }
 
-        [Parameter]
-        public string Id { get; set; }
+        [Parameter] public string Id { get; set; }
 
         protected Project project;
         protected List<ProjectItem> itemlList;
-        
-        protected ProjectController apiProject { get; set; }
+
+        protected ProjectService apiProject { get; set; }
         protected ProjectItem projectItem;
         protected ProjectItem projectItemSelected;
-        
-        
+
+
         protected List<FileLink> manualList;
-        protected ManualController apiManual;
+        protected ManualService apiManual;
         protected EmailContent email;
         protected FileLink FileLinkSelected;
-        
+
         protected string TextId;
         protected string ManualFileId;
         protected string ManualCode;
@@ -48,16 +47,18 @@ namespace TecniCAD.ProjectManagerPortal.Components.ProjectViewV2
         protected Mode modeSelect = Mode.None;
         protected Mode modeEmail = Mode.None;
 
-        protected async void TestClick()
+        protected void OnSelectItemChange(ProjectItem item)
         {
-            await Alert("Selecione um Manual para Salvar o Item!");
-            return;
+            projectItemSelected = item;
         }
+    
 
-        protected override async Task OnInitializedAsync()
+
+
+    protected override async Task OnInitializedAsync()
         {
-            apiProject = new ProjectController(configuration);
-            apiManual = new ManualController(configuration);
+            apiProject = new ProjectService(configuration);
+            apiManual = new ManualService(configuration);
             await LoadProject();
             await LoadManual();
         }

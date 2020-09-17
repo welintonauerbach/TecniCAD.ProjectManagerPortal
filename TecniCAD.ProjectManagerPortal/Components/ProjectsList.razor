@@ -1,6 +1,7 @@
-﻿@using Controller
+﻿@using Services
 @inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
 @inject IJSRuntime js
+@inject ProjectService api;
 @using Microsoft.Extensions.Configuration;
 
 <div id="tcMainContainer" class="container-fluid">
@@ -95,7 +96,6 @@
     //private TcHttp http;
     private List<Project> projects;
 
-    ProjectController api;
     Project project;
     Customer customer;
 
@@ -104,7 +104,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        api = new ProjectController(configuration);
+        //api = new ProjeService(configuration);
         await LoadProjects();
     }
 

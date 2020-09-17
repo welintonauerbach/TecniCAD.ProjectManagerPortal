@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using TecniCAD.Models;
 using TecniCAD.Utils;
 using Microsoft.Extensions.Configuration;
+using TecniCAD.ProjectManagerPortal.Services;
 
-namespace TecniCAD.ProjectManagerPortal.Controller
+namespace TecniCAD.ProjectManagerPortal.Service
 {
-    public class ManualController
+    public class ManualService : IManualService
     {
         string baseUrl;
         string baseAdressFileLink;
@@ -21,7 +22,7 @@ namespace TecniCAD.ProjectManagerPortal.Controller
 
         private IConfiguration _configuration;
 
-        public ManualController(IConfiguration configuration)
+        public ManualService(IConfiguration configuration)
         {
             _configuration = configuration;
 

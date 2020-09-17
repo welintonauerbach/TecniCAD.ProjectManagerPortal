@@ -10,7 +10,7 @@ using TecniCAD.Utils;
 
 namespace TecniCAD.ProjectManagerPortal.Controller
 {    
-    public class EmailsController
+    public class EmailsService
     {
         string baseUrl;
         string baseAdressEmails;
@@ -20,7 +20,7 @@ namespace TecniCAD.ProjectManagerPortal.Controller
 
         private IConfiguration _configuration;
 
-        public EmailsController(IConfiguration configuration)
+        public EmailsService(IConfiguration configuration)
         {
             _configuration = configuration;
 
