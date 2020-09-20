@@ -1,0 +1,185 @@
+﻿@using System.IO
+@using TecniCAD.ProjectManagerPortal.Services
+
+@if (project == null) return;
+@if (projectItem == null) return;
+
+<div id="tcCard" class="col tc-card-item-2">
+    <div class="tc-card-header">
+        <h4>Detalhes do Item</h4>
+    </div>
+    <MatTabGroup>
+        <MatTab Label="Adicionar | Editar Item">
+            <div class="tc-card-body">
+                <div class="form-row">
+                    <div class="col-1">
+                        <TcInputBox Label="Item" PlaceHolder="Número do Item" @bind-Text="projectItem.ItemNumber"></TcInputBox>
+                    </div>
+                    <div class="col-2">
+                        <TcInputBox Upercase="true" Label="OF" PlaceHolder="Número da OF" @bind-Text="projectItem.OfNumber"></TcInputBox>
+                    </div>
+                    <div class="col-1">
+                        <TcInputBox Upercase="true" Label="Desenho" PlaceHolder="Número da OF" @bind-Text="projectItem.DocNumber"></TcInputBox>
+                    </div>
+                    <div class="col">
+                        <TcInputBox Upercase="true" Label="Nome do Documento" PlaceHolder="Descrição do documento" @bind-Text="projectItem.Name"></TcInputBox>
+                    </div>
+                </div>
+            </div>
+        </MatTab>
+        <MatTab Label="Documentos e Manuais">
+            <div class="tc-card-body">
+                <div class="form-row">
+                    @if (FileLinkSelected != null)
+                    {
+                        <div class="form-row">
+                            <div class="col-1">
+                                <TcInputBox Label="ID" PlaceHolder="@FileLinkSelected.FileLinkId.ToString()" IsReadOnly="true"></TcInputBox>
+                            </div>
+                            <div class="col-1">
+                                <TcInputBox Label="Código" @bind-Text="@FileLinkSelected.Code" IsReadOnly="true"></TcInputBox>
+                            </div>
+                            <div class="col">
+                                <TcInputBox Label="Nome - Descrição" @bind-Text="@FileLinkSelected.Name" IsReadOnly="true"></TcInputBox>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <p/>
+                <div class="tc-card-footer">
+                    <button class="btn btn-info" @onclick="GetManuals">Selecionar Documento</button>
+                </div>
+                <div class="form-row">
+                    @* Card lista de Manuais *@
+                    @if (modeSelect == Mode.Add)
+                    {
+                        <p></p>
+                        <div class="tc-card-body">
+                            <div class="form-row">
+                                
+                                <ManualList @bind-FileLink="FileLinkSelected" OptionsButton="false" SelectButton="true"></ManualList>
+                               
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </MatTab>
+        <MatTab Label="Peças de Reposição">
+            <div class="tc-card-body">
+                <div class="form-row">
+                    <MatFileUpload OnChange="@FilesReady" Label="Arraste aqui o arquivo ou Browse"></MatFileUpload>
+
+                    @foreach (var f in listFiles)
+                    {
+                        <div>@f</div>
+                    }
+                </div>
+            </div>
+        </MatTab>
+    </MatTabGroup>
+    <div class="tc-card-footer">
+        <button class="btn btn-success" @onclick="SaveItem">Salvar Item</button>
+        <button class="btn btn-danger">Cancelar Item</button>
+    </div>
+</div>
+
+
+@code {
+    [CascadingParameter(Name = "ProjectItem")]
+    public ProjectItem projectItem { get; set; }
+
+    [CascadingParameter(Name = "Project")]
+    protected Project project { get; set; }
+
+    [CascadingParameter(Name = "ModeItem")]
+    protected Mode modeItem { get; set; } = Mode.None;
+
+    protected FileLink FileLinkSelected;
+    protected List<FileLink> manualList;
+
+    [Inject]
+    protected IProjectService apiProject { get; set; }
+
+    [Inject]
+    protected IManualService apiManual { get; set; }
+
+    protected Mode modeSelect = Mode.None;
+
+
+    protected async Task GetManuals()
+    {
+        if (manualList == null) { manualList = new List<FileLink>(); }
+        modeSelect = Mode.Add;
+        manualList = await apiManual.GetManuals();
+    }
+
+    protected async Task SaveItem()
+    {
+        if (modeItem == Mode.Add)
+        {
+            if (FileLinkSelected == null)
+            {
+                //await Alert("Selecione um Manual para Salvar o Item!");
+                return;
+            }
+            projectItem.FileLinkId = FileLinkSelected.FileLinkId;
+            projectItem.ProjectId = project.ProjectId;
+            var isSucess = await apiProject.SaveProjectItem(projectItem);
+
+            if (isSucess)
+            {
+                //await ReloadProject();
+                modeItem = Mode.None;
+                //HideManuals();
+                projectItem = null;
+                FileLinkSelected = null;
+            }
+            else
+            {
+                //await Alert("Atenção: O item não foi salvo!");
+            }
+        }
+
+        if (modeItem == Mode.Edit)
+        {
+            projectItem.FileLinkId = FileLinkSelected.FileLinkId;
+            projectItem.ProjectId = project.ProjectId;
+            var isSucess = await apiProject.UpdateProjectItem(projectItem.ProjectItemId, projectItem);
+            if (isSucess)
+            {
+                modeItem = Mode.None;
+                //HideManuals();
+                projectItem = null;
+                FileLinkSelected = null;
+                //await Alert("Item salvo com sucesso!");
+            }
+        }
+    }
+
+    void CancelItem()
+    {
+        projectItem = null;
+        FileLinkSelected = null;
+        modeItem = Mode.None;
+        //HideManuals();
+    }
+
+    //private async Task ReloadProject()
+    //{
+    //    project.Items.Clear();
+    //    await LoadProject();
+    //}
+
+    List<string> listFiles = new List<string>();
+
+    void FilesReady(IMatFileUploadEntry[] files)
+    {
+        foreach (var file in files)
+        {
+            listFiles.Add($"Arquivo: {file.Name} - Tamanho: {file.Size}");            
+        }
+    }
+
+}

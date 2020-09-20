@@ -1,0 +1,24 @@
+﻿@implements IDisposable
+@using MatBlazor.Demo.Models
+@inject UserAppModel UserAppModel
+@page "/Card"
+
+
+<DemoMatCard></DemoMatCard>
+
+@code
+{
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        this.UserAppModel.Title = "MatCard";
+    }
+
+
+    public void Dispose()
+    {
+        this.UserAppModel.Title = null;
+    }
+
+}

@@ -22,28 +22,28 @@ else
         <tbody>
             @foreach (var item in manualLinks)
             {
-            <tr onclick="@Show(item.FileLinkId.ToString())">
-                <td>@item.Category.Name</td>
-                <td>@item.FileLinkId.ToString()</td>
-                <td>@item.Name</td>
-                <td>@item.Code</td>
-                <td>@item.FileType</td>
-                <td>
-                    <div class="btn-group" role="group">
-                        @if (selectButton)
-                        {
-                            <button class="btn btn-info" @onclick="@(() => SelectManual(item))">Selecionar</button>
-                        }
-                        <a class="btn btn-success" href="@item.FilePath"
-                           role="button" aria-pressed="true" target="_blank">Acessar</a>
-                        @if (optionsButton)
-                        {
-                            <button class="btn btn-secondary" @onclick="@(() => EditManual(item))">Editar</button>
-                            <button class="btn btn-danger" @onclick="@(() => DeleteManual(item.FileLinkId))">Excluir</button>
-                        }
-                    </div>
-                </td>
-            </tr>
+                <tr onclick="@Show(item.FileLinkId.ToString())">
+                    <td>@item.Category.Name</td>
+                    <td>@item.FileLinkId.ToString()</td>
+                    <td>@item.Name</td>
+                    <td>@item.Code</td>
+                    <td>@item.FileType</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            @if (selectButton)
+                            {
+                                <button class="btn btn-info" @onclick="@(() => SelectDocument(item))">Selecionar</button>
+                            }
+                            <a class="btn btn-success" href="@item.FilePath"
+                               role="button" aria-pressed="true" target="_blank">Acessar</a>
+                            @if (optionsButton)
+                            {
+                                <button class="btn btn-secondary" @onclick="@(() => EditDocument(item))">Editar</button>
+                                <button class="btn btn-danger" @onclick="@(() => DeleteDocument(item.FileLinkId))">Excluir</button>
+                            }
+                        </div>
+                    </td>
+                </tr>
             }
         </tbody>
     </table>
@@ -51,11 +51,14 @@ else
 
 @code{
 
+    //[CascadingParameter(Name = "ModeSelect")]
+    //Mode ModeSelect { get; set; }
+
     [Inject]
     IManualService api { get; set; }
 
     List<FileLink> manualLinks;
-    Mode mode = Mode.None;
+
     bool selectButton = false;
     bool optionsButton = true;
 
@@ -85,16 +88,16 @@ else
         }
     }
 
-    protected void SelectManual(FileLink Id)
+    protected void SelectDocument(FileLink Id)
     {
         FileLink = Id;
+        //ModeSelect = Mode.None;
     }
 
     private FileLink FileLinkInterop { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        //api = new ManualController(configuration);
         await LoadManuals();
     }
 
@@ -118,7 +121,7 @@ else
         await UpdateList();
     }
 
-    private async Task DeleteManual(int id)
+    private async Task DeleteDocument(int id)
     {
         var isSucess = await api.DeleteManual(id);
 
@@ -133,7 +136,7 @@ else
         }
     }
 
-    protected void EditManual(FileLink fileLink)
+    protected void EditDocument(FileLink fileLink)
     {
         FileLink = fileLink;
     }

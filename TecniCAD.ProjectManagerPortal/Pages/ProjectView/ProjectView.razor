@@ -21,73 +21,22 @@
         @*Card Enviar Email*@
         <CascadingValue Value="@modeEmail" Name="SendEmail">
             <CascadingValue Value="@project" Name="Project">
-            <CascadingValue Value="@email" Name="EmailContent">
-                <SendEmailView></SendEmailView>
-            </CascadingValue>
+                <CascadingValue Value="@email" Name="EmailContent">
+                    <SendEmailView></SendEmailView>
+                </CascadingValue>
             </CascadingValue>
         </CascadingValue>
         <p />
         @*Edit Itens*@
-        @if (modeItem == Mode.Add || modeItem == Mode.Edit)
-        {
-            @*<div id="tcComponent" class="row">*@
-            <div id="tcCard" class="col tc-card-item-2">
-                <div class="tc-card-header">
-                    <h4>Adicionar | Editar Item</h4>
-                </div>
-                <div class="tc-card-body">
-                    <div class="form-row">
-                        <div class="col-1">
-                            <TcInputBox Label="Item" PlaceHolder="Número do Item" @bind-Text="projectItem.ItemNumber"></TcInputBox>
-                        </div>
-                        <div class="col-2">
-                            <TcInputBox Upercase="true" Label="OF" PlaceHolder="Número da OF" @bind-Text="projectItem.OfNumber"></TcInputBox>
-                        </div>
-                        <div class="col-1">
-                            <TcInputBox Upercase="true" Label="Desenho" PlaceHolder="Número da OF" @bind-Text="projectItem.DocNumber"></TcInputBox>
-                        </div>
-                        <div class="col">
-                            <TcInputBox Upercase="true" Label="Nome do Documento" PlaceHolder="Descrição do documento" @bind-Text="projectItem.Name"></TcInputBox>
-                        </div>
-                    </div>
-                    @if (FileLinkSelected != null)
-                    {
-                        <div class="form-row">
-                            <div class="col-1">
-                                <TcInputBox Label="ID" PlaceHolder="@FileLinkSelected.FileLinkId.ToString()" IsReadOnly="true"></TcInputBox>
-                            </div>
-                            <div class="col-1">
-                                <TcInputBox Label="Código" @bind-Text="@FileLinkSelected.Code" IsReadOnly="true"></TcInputBox>
-                            </div>
-                            <div class="col">
-                                <TcInputBox Label="Nome - Descrição" @bind-Text="@FileLinkSelected.Name" IsReadOnly="true"></TcInputBox>
-                            </div>
-                        </div>
-                    }
-                </div>
-                <div class="tc-card-footer">
-                    <button class="btn btn-info" @onclick="GetManuals">Selecionar Manual</button>&emsp;&emsp;
-                    <button class="btn btn-success" @onclick="SaveItem">Salvar Item</button>
-                    <button class="btn btn-danger" @onclick="CancelItem">Cancelar Item</button>
-                </div>
-
-                @* Card lista de Manuais *@
-                @if (modeSelect == Mode.Add)
-                {
-                    <p></p>
-                    <div class="tc-card-body">
-                        <div class="form-row">
-                            <ManualList @bind-FileLink="FileLinkSelected" OptionsButton="false" SelectButton="true"></ManualList>
-                        </div>
-                    </div>
-                }
-
-            </div>
-            @*</div>*@
-            <p></p>
-
-        }
+        <CascadingValue Value="projectItem" Name="ProjectItem">
+            <CascadingValue Value="project" Name="Project">
+                <CascadingValue Value="modeItem" Name="ModeItem">
+                    <EditItem></EditItem>
+                </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
         <p />
+        @*Itenm List*@
         <div class="row">
             <div id="tcLista" class="col">
                 <p class="tc-title">Itens do Projeto</p>
@@ -123,7 +72,7 @@
                                         <td class="align-middle" width="100">
                                             @*Area dos Botões*@
                                             <div class="btn-group" role="group">
-                                                <button class="btn btn-info" @onclick="@(() => OpenDataView())">Itens Reposição</button>
+                                                @*<button class="btn btn-info" @onclick="@(() => OpenDataView())">Itens Reposição</button>*@
                                                 <button class="btn btn-info" @onclick="@(() => EditItem(item))">Editar</button>
                                                 <button class="btn btn-outline-primary" @onclick="@(() => DuplicateItem(item))">Duplicar</button>
                                                 <a class="btn btn-success" href="@item.FileLink.FilePath"

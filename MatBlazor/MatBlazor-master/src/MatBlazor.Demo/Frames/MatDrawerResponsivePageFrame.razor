@@ -1,0 +1,46 @@
+﻿@page "/MatDrawerResponsiveFrame"
+
+
+<MatDrawerContainer Style="height: 100vh;" DrawerWidth="400px">
+    <MatHidden Breakpoint="@MatBreakpoint.SM" Direction="@MatHiddenDirection.Up">
+        <ChildContent>
+            <MatDrawer @bind-Opened="@Opened" Mode="@MatDrawerMode.Modal">
+               Drawer Content
+            </MatDrawer>
+        </ChildContent>
+
+        <ElseContent>
+            <MatDrawer @bind-Opened="@Opened" Mode="@MatDrawerMode.Dismissible">
+                400px Custom Width Drawer Content
+            </MatDrawer>
+        </ElseContent>
+    </MatHidden>
+
+    <MatDrawerContent>
+        <div>
+            <MatButton OnClick="@((e) => ButtonClicked())">
+                @if (Opened)
+                {
+                    <span>Hide Menu</span>
+                }
+                else
+                {
+                    <span>Open Menu</span>
+                }
+            </MatButton>
+        </div>
+        <p>Page Content</p>
+    </MatDrawerContent>
+</MatDrawerContainer>
+
+
+@code
+{
+    bool Opened = true;
+
+    void ButtonClicked()
+    {
+        Opened = !Opened;
+    }
+
+}

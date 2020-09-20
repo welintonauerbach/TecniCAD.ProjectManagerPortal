@@ -44,7 +44,6 @@
 
   <ItemGroup>
     <Folder Include="Controller\" />
-    <Folder Include="Pages\ProjectView\ProjectHeader\" />
   </ItemGroup>
 
 </Project>

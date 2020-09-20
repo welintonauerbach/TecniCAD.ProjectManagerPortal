@@ -53,6 +53,7 @@ namespace TecniCAD.ProjectManagerPortal
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
+            // TcProject Objects Inject
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<IManualService, ManualService>();
 
