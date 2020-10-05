@@ -1,0 +1,53 @@
+﻿<h3>TableRow Detalhes</h3>
+
+<!--<table class="table table-hover table-striped table-bordered">
+    <thead class="thead-light">
+        <tr>
+            <th class="text-center" scope="col">Item</th>
+            <th class="text-center" scope="col">Número OF</th>
+            <th class="text-center" scope="col">Descrição do Item</th>
+            <th class="text-center" scope="col">Número do Desenho</th>
+            <th class="text-center" scope="col">Manual</th>
+            <th class="text-center" scope="col">Código ERP</th>
+            <th class="text-center" scope="col">Tipo</th>
+            <th class="text-center" scope="col">Opções</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (project != null)
+        {
+            if (project.Items.Count > 0)
+            {
+                @foreach (ProjectItem item in itemlList)
+                {
+                    <tr class="@IsManualExist(item)">
+                        <td class="align-middle" width="100">@item.ItemNumber</td>
+                        <td class="align-middle" width="200">@item.OfNumber</td>
+                        <td class="align-middle">@item.Name</td>
+                        <td class="align-middle">@item.DocNumber</td>
+                        <td class="align-middle">--><!--@*@item.FileLink.Name*@--><!--</td>
+                        <td class="align-middle">--><!--@*@item.FileLink.Code*@--><!--</td>
+                        <td class="align-middle">--><!--@*@item.FileLink.FileType*@--><!--</td>
+                        <td class="align-middle" width="100">-->
+                            <!--@*Area dos Botões*@-->
+
+                        <!--</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td>
+                        <h4>Sem Itens no Projeto</h4>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>-->
+
+@code {
+    [Parameter]
+    public List<SparePartsCollection> SpareParts { get; set; }
+}

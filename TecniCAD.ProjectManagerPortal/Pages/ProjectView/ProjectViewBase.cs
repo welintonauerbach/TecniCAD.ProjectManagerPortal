@@ -56,8 +56,6 @@ namespace TecniCAD.ProjectManagerPortal.Pages.ProjectView
 
         protected override async Task OnInitializedAsync()
         {
-            //apiProject = new ProjectController(configuration);
-            //apiManual = new ManualController(configuration);
             await LoadProject();
             await LoadManual();
         }
@@ -97,140 +95,140 @@ namespace TecniCAD.ProjectManagerPortal.Pages.ProjectView
             //projectItem.ProjectId = project.ProjectId;
         }
 
-        protected async Task SaveItem()
-        {
-            if (modeItem == Mode.Add)
-            {
-                if (FileLinkSelected == null)
-                {
-                    ShowAlert.Add("Selecione um Manual para Salvar o Item!",MatToastType.Danger);
-                    return;
-                }
-                projectItem.FileLinkId = FileLinkSelected.FileLinkId;
-                projectItem.ProjectId = project.ProjectId;
-                var isSucess = await apiProject.SaveProjectItem(projectItem);
+        //protected async Task SaveItem()
+        //{
+        //    if (modeItem == Mode.Add)
+        //    {
+        //        if (FileLinkSelected == null)
+        //        {
+        //            ShowAlert.Add("Selecione um Manual para Salvar o Item!",MatToastType.Danger);
+        //            return;
+        //        }
+        //        //projectItem.FileLinkCollection.Add(); FileLinkId = FileLinkSelected.FileLinkId;
+        //        projectItem.ProjectId = project.ProjectId;
+        //        var isSucess = await apiProject.SaveProjectItem(projectItem);
 
-                if (isSucess)
-                {
-                    await ReloadProject();
-                    modeItem = Mode.None;
-                    HideManuals();
-                    projectItem = null;
-                    FileLinkSelected = null;
-                    ShowAlert.Add("Item Adicionado com Sucesso", MatToastType.Success);
-                }
-                else
-                {
-                    ShowAlert.Add("Atenção: O item não foi salvo!",MatToastType.Warning);
-                }
-            }
+        //        if (isSucess)
+        //        {
+        //            await ReloadProject();
+        //            modeItem = Mode.None;
+        //            HideManuals();
+        //            projectItem = null;
+        //            FileLinkSelected = null;
+        //            ShowAlert.Add("Item Adicionado com Sucesso", MatToastType.Success);
+        //        }
+        //        else
+        //        {
+        //            ShowAlert.Add("Atenção: O item não foi salvo!",MatToastType.Warning);
+        //        }
+        //    }
 
-            if (modeItem == Mode.Edit)
-            {
-                projectItem.FileLinkId = FileLinkSelected.FileLinkId;
-                projectItem.ProjectId = project.ProjectId;
-                var isSucess = await apiProject.UpdateProjectItem(projectItem.ProjectItemId, projectItem);
-                if (isSucess)
-                {
-                    modeItem = Mode.None;
-                    HideManuals();
-                    projectItem = null;
-                    FileLinkSelected = null;
-                    ShowAlert.Add("Item salvo com sucesso!",MatToastType.Success);
-                }
-            }
+        //    if (modeItem == Mode.Edit)
+        //    {
+        //        //projectItem.FileLinkId = FileLinkSelected.FileLinkId;
+        //        projectItem.ProjectId = project.ProjectId;
+        //        var isSucess = await apiProject.UpdateProjectItem(projectItem.ProjectItemId, projectItem);
+        //        if (isSucess)
+        //        {
+        //            modeItem = Mode.None;
+        //            HideManuals();
+        //            projectItem = null;
+        //            FileLinkSelected = null;
+        //            ShowAlert.Add("Item salvo com sucesso!",MatToastType.Success);
+        //        }
+        //    }
 
-        }
+        //}
 
-        private async Task ReloadProject()
-        {
-            project.Items.Clear();
-            await LoadProject();
-        }
+        //private async Task ReloadProject()
+        //{
+        //    project.Items.Clear();
+        //    await LoadProject();
+        //}
 
-        protected void CancelItem()
-        {
-            projectItem = null;
-            FileLinkSelected = null;
-            modeItem = Mode.None;
-            HideManuals();
-        }
+        //protected void CancelItem()
+        //{
+        //    projectItem = null;
+        //    FileLinkSelected = null;
+        //    modeItem = Mode.None;
+        //    HideManuals();
+        //}
 
-        protected async Task GetManuals()
-        {
-            if (manualList == null) { manualList = new List<FileLink>(); }
-            modeSelect = Mode.Add;
-            manualList = await apiManual.GetManuals();
-        }
+        //protected async Task GetManuals()
+        //{
+        //    if (manualList == null) { manualList = new List<FileLink>(); }
+        //    modeSelect = Mode.Add;
+        //    manualList = await apiManual.GetManuals();
+        //}
 
-        protected void HideManuals()
-        {
-            modeSelect = Mode.None;
-        }
+        //protected void HideManuals()
+        //{
+        //    modeSelect = Mode.None;
+        //}
 
-        protected void EditItem(ProjectItem item)
-        {
-            projectItem = item;
+        //protected void EditItem(ProjectItem item)
+        //{
+        //    projectItem = item;
 
-            if (projectItem.FileLink != null)
-                FileLinkSelected = item.FileLink;
+        //    //if (projectItem.FileLink != null)
+        //        //FileLinkSelected = item.FileLink;
 
-            modeItem = Mode.Edit;
-        }
+        //    modeItem = Mode.Edit;
+        //}
 
         /// <summary>
         /// Insere documentos e dados adicionais sobre o ítem
         /// </summary>
         /// <param name="item"></param>
-        protected void OpenDataView()
-        {
-            //projectItem = item;
+        //protected void OpenDataView()
+        //{
+        //    //projectItem = item;
 
-            //if (projectItem.FileLink != null)
-            //    FileLinkSelected = item.FileLink;
+        //    //if (projectItem.FileLink != null)
+        //    //    FileLinkSelected = item.FileLink;
 
-            //modeItem = Mode.Edit;
-        }
+        //    //modeItem = Mode.Edit;
+        //}
 
-        protected async Task DuplicateItem(ProjectItem item)
-        {
-            var duplicateItem = new ProjectItem
-            {
-                DocNumber = item.DocNumber,
-                FileLinkId = item.FileLinkId,
-                ItemNumber = item.ItemNumber,
-                Name = item.Name,
-                OfNumber = item.OfNumber,
-                ProjectId = item.ProjectId
-            };
+        //protected async Task DuplicateItem(ProjectItem item)
+        //{
+        //    var duplicateItem = new ProjectItem
+        //    {
+        //        DocNumber = item.DocNumber,
+        //        //FileLinkId = item.FileLinkId,
+        //        ItemNumber = item.ItemNumber,
+        //        Name = item.Name,
+        //        OfNumber = item.OfNumber,
+        //        ProjectId = item.ProjectId
+        //    };
 
-            var isSucess = await apiProject.SaveProjectItem(duplicateItem).ConfigureAwait(false);
+        //    var isSucess = await apiProject.SaveProjectItem(duplicateItem).ConfigureAwait(false);
 
-            if (isSucess)
-            {
-                await ReloadProject();
-            }
-            else
-            {
-                ShowAlert.Add("Atenção: O item não foi salvo!", MatToastType.Warning);
-            }
+        //    if (isSucess)
+        //    {
+        //        await ReloadProject();
+        //    }
+        //    else
+        //    {
+        //        ShowAlert.Add("Atenção: O item não foi salvo!", MatToastType.Warning);
+        //    }
 
-        }
+        //}
 
-        protected async Task DeleteItem(int item)
-        {
-            var isSucess = await apiProject.DeleteProjectItem(item);
+        //protected async Task DeleteItem(int item)
+        //{
+        //    var isSucess = await apiProject.DeleteProjectItem(item);
 
-            if (isSucess)
-            {
-                await ReloadProject();
-                ShowAlert.Add("Item Deletado com sucesso!", MatToastType.Success);
-            }
-            else
-            {
-                ShowAlert.Add("Problema ao Deletar o item!", MatToastType.Warning);
-            }
-        }
+        //    if (isSucess)
+        //    {
+        //        await ReloadProject();
+        //        ShowAlert.Add("Item Deletado com sucesso!", MatToastType.Success);
+        //    }
+        //    else
+        //    {
+        //        ShowAlert.Add("Problema ao Deletar o item!", MatToastType.Warning);
+        //    }
+        //}
 
         protected void ComposeEmail()
         {
@@ -238,19 +236,19 @@ namespace TecniCAD.ProjectManagerPortal.Pages.ProjectView
             email = new EmailContent();
         }
 
-        protected string IsManualExist(ProjectItem item)
-        {
-            if (item == null)
-            {
-                return "tc-no-manual";
-            }
-            if (item.FileLink.Code == "000000")
-            {
-                return "tc-no-manual";
-            }
+        //protected string IsManualExist(ProjectItem item)
+        //{
+        //    if (item == null)
+        //    {
+        //        return "tc-no-manual";
+        //    }
+        //    ////if (item.FileLink.Code == "000000")
+        //    //{
+        //    //    return "tc-no-manual";
+        //    //}
 
-            return "tc-yes-manual";
-        }
+        //    return "tc-yes-manual";
+        //}
 
     }
 }

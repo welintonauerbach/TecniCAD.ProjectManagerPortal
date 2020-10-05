@@ -1,0 +1,189 @@
+﻿@using System.IO
+@using TecniCAD.ProjectManagerPortal.Services
+
+@if (project == null) return;
+@if (projectItem == null) return;
+
+<div id="tcCard" class="col tc-card-item-2">
+    <div class="tc-card-header">
+        <h4>Detalhes do Item</h4>
+    </div>
+    <MatTabGroup>
+        <MatTab Label="Adicionar | Editar Item">
+            <div class="tc-card-body">
+                <div class="form-row">
+                    <div class="col-1">
+                        <TcInputBox Label="Item" PlaceHolder="Número do Item" @bind-Text="projectItem.ItemNumber"></TcInputBox>
+                    </div>
+                    <div class="col-2">
+                        <TcInputBox Upercase="true" Label="OF" PlaceHolder="Número da OF" @bind-Text="projectItem.OfNumber"></TcInputBox>
+                    </div>
+                    <div class="col-1">
+                        <TcInputBox Upercase="true" Label="Desenho" PlaceHolder="Número da OF" @bind-Text="projectItem.DocNumber"></TcInputBox>
+                    </div>
+                    <div class="col">
+                        <TcInputBox Upercase="true" Label="Nome do Documento" PlaceHolder="Descrição do documento" @bind-Text="projectItem.Name"></TcInputBox>
+                    </div>
+                </div>
+            </div>
+        </MatTab>
+        <MatTab Label="Documentos e Manuais">
+            <div class="tc-card-body">
+                <div class="form-row">
+                    @if (projectItem != null && projectItem.FileLinkCollection.Count > 0)
+                    {
+                        int i = 0;
+                        @foreach (var fileLink in projectItem.FileLinkCollection)
+                        {
+                            i = i + 1;
+                            <div class="form-row">
+                                <div class="col-1">
+                                    <MatTextField @bind-Value="@i" Label="Item" Outlined="true" ReadOnly="true"></MatTextField>
+                                </div>
+                                <div class="col-1">
+                                    <MatTextField @bind-Value="@fileLink.FileLinkId" Label="ID" Outlined="true" ReadOnly="true"></MatTextField>
+                                </div>
+                                <div class="col-2">
+                                    <MatTextField @bind-Value="@fileLink.Code" Label="Código" Outlined="true" ReadOnly="true"></MatTextField>
+                                </div>
+                                <div class="col-6">
+                                    <MatTextField @bind-Value="@fileLink.Name" Label="Nome - Descrição" Outlined="true" ReadOnly="true"></MatTextField>
+                                </div>
+                                <div class="col-1">
+                                    <MatIconButton Icon="delete_sweep"></MatIconButton>
+                                </div>
+                            </div>
+                        }
+                    }
+
+                    @*}*@
+                </div>
+                <p />
+                <div class="tc-card-footer">
+                    <MatIconButton Icon="add_circle" OnClick="GetManuals">Selecionar Manual</MatIconButton>
+                    @*<button class="btn btn-info" @onclick="GetManuals">Selecionar Documento</button>*@
+                </div>
+                <div class="form-row">
+                    @* Card lista de Manuais *@
+                    @if (modeSelect == Mode.Add)
+                    {
+                        <MatDialog @bind-IsOpen="@manualDialogIsOpen">
+                            <MatDialogTitle>Selecione um Manual</MatDialogTitle>
+                            <MatDialogContent>
+                                <div class="tc-card-body">
+                                    <div class="form-row">
+                                        <ManualList @bind-FileLink="FileLinkSelected" OptionsButton="false" SelectButton="true"></ManualList>
+                                    </div>
+                                </div>
+                            </MatDialogContent>
+                            <MatDialogActions>
+                                <MatButton OnClick="@(e => { manualDialogIsOpen = false; })">Fechar</MatButton>                              
+                            </MatDialogActions>
+                        </MatDialog>
+                    }
+
+                </div>
+            </div>
+        </MatTab>
+        <MatTab Label="Peças de Reposição">
+            <div class="tc-card-body">
+                <div class="form-row">
+                    <MatFileUpload OnChange="@FilesReady" Label="Arraste aqui o arquivo ou Browse"></MatFileUpload>
+
+                    @foreach (var f in listFiles)
+                    {
+                        <div>@f</div>
+                    }
+                </div>
+            </div>
+        </MatTab>
+    </MatTabGroup>
+    <div class="tc-card-footer">
+        <button class="btn btn-success" @onclick="@(() => SaveItem(projectItem.ProjectItemId))">Salvar Item</button>
+        <button class="btn btn-danger">Cancelar Item</button>
+    </div>
+</div>
+
+
+@code {
+    [CascadingParameter(Name = "ProjectItem")]
+    public ProjectItem projectItem { get; set; }
+
+    [CascadingParameter(Name = "Project")]
+    protected Project project { get; set; }
+
+    protected List<FileLink> manualList;
+
+    [Inject]
+    protected IProjectService apiProject { get; set; }
+
+    [Inject]
+    protected IManualService apiManual { get; set; }
+
+    [Inject]
+    protected IMatToaster ShowAlert { get; set; }
+
+    protected Mode modeSelect = Mode.None;
+
+    bool manualDialogIsOpen = false;
+    FileLink FileLinkSelected = null;
+
+    protected async Task GetManuals()
+    {
+        manualDialogIsOpen = true;
+        if (manualList == null) { manualList = new List<FileLink>(); }
+        modeSelect = Mode.Add;
+        manualList = await apiManual.GetManuals();
+    }
+
+    protected async Task SaveItem(int id)
+    {
+        if (projectItem == null)
+        {
+            ShowAlert.Add("O item do Projeto está nulo!", MatToastType.Danger);
+            return;
+        }
+
+        var isSucess = await apiProject.UpdateProjectItem(projectItem.ProjectItemId, projectItem);
+
+        if (isSucess)
+        {
+            ShowAlert.Add("Item salvo com sucesso!", MatToastType.Success);
+
+            //await ReloadProject();
+            //modeItem = Mode.None;
+            //HideManuals();
+            //projectItem = null;
+            //FileLinkSelected = null;
+        }
+        else
+        {
+            ShowAlert.Add("O Item não pôde ser salvo!", MatToastType.Danger);
+        }
+    }
+
+    void CancelItem()
+    {
+        //projectItem = null;
+        //FileLinkSelected = null;
+        // modeItem = Mode.None;
+        //HideManuals();
+    }
+
+    //private async Task ReloadProject()
+    //{
+    //    project.Items.Clear();
+    //    await LoadProject();
+    //}
+
+    List<string> listFiles = new List<string>();
+
+    void FilesReady(IMatFileUploadEntry[] files)
+    {
+        foreach (var file in files)
+        {
+            listFiles.Add($"Arquivo: {file.Name} - Tamanho: {file.Size}");
+        }
+    }
+
+}

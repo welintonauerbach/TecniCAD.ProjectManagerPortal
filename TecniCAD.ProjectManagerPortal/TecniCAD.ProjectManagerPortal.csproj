@@ -9,6 +9,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
+   
+  <ItemGroup>
+    <None Remove="Components\TableView\TableRow.razor.txt" />
+  </ItemGroup>
+   
+  <ItemGroup>
+    <Content Include="Components\TableView\TableRow.razor.txt" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MatBlazor" Version="2.7.0" />

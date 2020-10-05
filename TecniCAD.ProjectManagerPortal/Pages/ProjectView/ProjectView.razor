@@ -2,16 +2,13 @@
 @page "/project/{id}"
 @inherits TecniCAD.ProjectManagerPortal.Pages.ProjectView.ProjectViewBase
 @using TecniCAD.ProjectManagerPortal.Components
-@using TecniCAD.ProjectManagerPortal.Services
-@inject IProjectService apiProject;
-@inject IManualService apiManual;
 
 <div id="tcMainContainer" class="container-fluid">
     <div class="tc-page-col col">
 
         @*Header Project*@
         <ProjectHeader Project="@project"></ProjectHeader>
-
+        
         @*Action Butons*@
         <div class="tc-buttons-container">
             <button class="btn btn-outline-danger" @onclick="AddItem">Adicionar Item</button>
@@ -28,72 +25,53 @@
         </CascadingValue>
         <p />
         @*Edit Itens*@
-        <CascadingValue Value="projectItem" Name="ProjectItem">
+        <!--<CascadingValue Value="projectItem" Name="ProjectItem">
             <CascadingValue Value="project" Name="Project">
                 <CascadingValue Value="modeItem" Name="ModeItem">
                     <EditItem></EditItem>
                 </CascadingValue>
             </CascadingValue>
         </CascadingValue>
-        <p />
+        <p />-->    
+
         @*Itenm List*@
-        <div class="row">
-            <div id="tcLista" class="col">
-                <p class="tc-title">Itens do Projeto</p>
-                <p></p>
-                <table class="table table-hover table-striped table-bordered">
-                    <thead class="thead-light">
-                        <tr>
-                            <th class="text-center" scope="col">Item</th>
-                            <th class="text-center" scope="col">Número OF</th>
-                            <th class="text-center" scope="col">Descrição do Item</th>
-                            <th class="text-center" scope="col">Número do Desenho</th>
-                            <th class="text-center" scope="col">Manual</th>
-                            <th class="text-center" scope="col">Código ERP</th>
-                            <th class="text-center" scope="col">Tipo</th>
-                            <th class="text-center" scope="col">Opções</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (project != null)
+        <p class="tc-title">Itens do Projeto</p>
+        <div>
+            <div>                
+                    @if (project != null)
+                    {
+                        if (project.Items.Count > 0)
                         {
-                            if (project.Items.Count > 0)
-                            {
+                            <MatAccordion Multi="true">
                                 @foreach (ProjectItem item in itemlList)
                                 {
-                                    <tr class="@IsManualExist(item)">
-                                        <td class="align-middle" width="100">@item.ItemNumber</td>
-                                        <td class="align-middle" width="200">@item.OfNumber</td>
-                                        <td class="align-middle">@item.Name</td>
-                                        <td class="align-middle">@item.DocNumber</td>
-                                        <td class="align-middle">@item.FileLink.Name</td>
-                                        <td class="align-middle">@item.FileLink.Code</td>
-                                        <td class="align-middle">@item.FileLink.FileType</td>
-                                        <td class="align-middle" width="100">
-                                            @*Area dos Botões*@
-                                            <div class="btn-group" role="group">
-                                                @*<button class="btn btn-info" @onclick="@(() => OpenDataView())">Itens Reposição</button>*@
-                                                <button class="btn btn-info" @onclick="@(() => EditItem(item))">Editar</button>
-                                                <button class="btn btn-outline-primary" @onclick="@(() => DuplicateItem(item))">Duplicar</button>
-                                                <a class="btn btn-success" href="@item.FileLink.FilePath"
-                                                   role="button" aria-pressed="true" target="_blank">Acessar</a>
-                                                <button class="btn btn-danger" @onclick="@(() => DeleteItem(item.ProjectItemId))">Excluir</button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <MatExpansionPanel Id="@item.ProjectItemId.ToString()">
+                                        <MatExpansionPanelSummary>
+                                            <MatExpansionPanelHeader>                                                
+                                                <h6>@item.ItemNumber</h6>
+                                            </MatExpansionPanelHeader>
+                                            <MatExpansionPanelSubHeader>@item.Name</MatExpansionPanelSubHeader>
+                                        </MatExpansionPanelSummary>
+                                        <MatExpansionPanelDetails>
+                                            <CascadingValue Value="item" Name="ProjectItem">
+                                                <CascadingValue Value="project" Name="Project">                                        
+                                                    <ItemDetails></ItemDetails>                                        
+                                                </CascadingValue>
+                                            </CascadingValue>
+                                        </MatExpansionPanelDetails>
+                                    </MatExpansionPanel>
                                 }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td>
-                                        <h4>Sem Itens no Projeto</h4>
-                                    </td>
-                                </tr>
-                            }
+                            </MatAccordion>
                         }
-                    </tbody>
-                </table>
+                    }
+                <!--<div class="btn-group" role="group">-->
+                    @*<button class="btn btn-info" @onclick="@(() => OpenDataView())">Itens Reposição</button>*@
+                    <!--<button class="btn btn-info" @onclick="@(() => EditItem(item))">Editar</button>
+                    <button class="btn btn-outline-primary" @onclick="@(() => DuplicateItem(item))">Duplicar</button>
+                    <a class="btn btn-success" href="@*@item.FileLink.FilePath*@"
+                       role="button" aria-pressed="true" target="_blank">Acessar</a>
+                    <button class="btn btn-danger" @onclick="@(() => DeleteItem(item.ProjectItemId))">Excluir</button>
+                </div>-->                
             </div>
         </div>
     </div>
